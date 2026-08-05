@@ -122,69 +122,80 @@ class OpenAiService {
   private generateMockExtractedData(text: string): StructuredResumeData {
     // Extract emails if found
     const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    const email = emailMatch ? emailMatch[0] : 'developer@devvolio.com';
+    const email = emailMatch ? emailMatch[0] : undefined;
 
-    // Basic technology scanner
-    const techStack = ['React', 'Next.js', 'TypeScript', 'Node.js', 'Express', 'MongoDB', 'Docker', 'AWS', 'Tailwind', 'Python'];
-    const detectedSkills = techStack.filter(tech => new RegExp(tech, 'i').test(text));
+    // Extract social URLs if present
+    const githubMatch = text.match(/https?:\/\/(www\.)?github\.com\/[a-zA-Z0-9_-]+/i);
+    const linkedinMatch = text.match(/https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+/i);
+
+    // Expanded technology scanner
+    const techStack = [
+      'React', 'Next.js', 'TypeScript', 'Node.js', 'Express', 'MongoDB', 'Docker', 'AWS',
+      'Tailwind', 'Python', 'JavaScript', 'HTML', 'CSS', 'Redux', 'GraphQL', 'REST API',
+      'PostgreSQL', 'MySQL', 'Git', 'CI/CD', 'Kubernetes', 'Java', 'C++', 'Vue.js', 'Angular'
+    ];
+    const detectedSkills = techStack.filter(tech => new RegExp(`\\b${tech.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}\\b`, 'i').test(text));
+    const skillList = detectedSkills.length > 0 ? detectedSkills : ['TypeScript', 'React', 'Node.js', 'MongoDB', 'Docker'];
 
     return {
       hero: {
-        title: 'Full Stack & Software Architect',
-        subtitle: 'Engineering High-Scalability Web Systems',
-        tagline: 'Designing microservices, multi-tenant cloud platforms, and modern frontend interfaces.'
+        title: 'Software Engineer & Full Stack Developer',
+        subtitle: 'Engineering Scalable Web Systems & Modern Architectures',
+        tagline: 'Designing microservices, responsive web platforms, and modern TypeScript systems.'
       },
       about: {
-        bio: 'Passionate Software Engineer specializing in scalable web systems, clean architecture, and modern TypeScript ecosystems.',
+        bio: text.length > 50
+          ? text.slice(0, 300).replace(/\s+/g, ' ').trim() + '...'
+          : 'Passionate Software Engineer specializing in scalable web systems, clean architecture, and modern full-stack development.',
         expertises: [
-          { title: 'Frontend Systems', desc: 'Crafting responsive Next.js and Tailwind interfaces.', icon: 'layout' },
-          { title: 'Backend APIs', desc: 'Building high-performance REST APIs & Microservices.', icon: 'server' }
+          { title: 'Full Stack Engineering', desc: 'Designing responsive web apps and robust REST & GraphQL APIs.', icon: 'layout' },
+          { title: 'Cloud & Database Systems', desc: 'Managing scalable MongoDB databases, microservices & DevOps.', icon: 'server' }
         ]
       },
-      skills: (detectedSkills.length > 0 ? detectedSkills : ['TypeScript', 'React', 'Node.js', 'MongoDB', 'Docker']).map((s, idx) => ({
+      skills: skillList.map((s, idx) => ({
         name: s,
-        category: idx % 2 === 0 ? 'Frontend' : 'Backend',
-        proficiency: 85 + (idx % 10)
+        category: ['Frontend', 'Backend', 'Database', 'DevOps'][idx % 4],
+        proficiency: 80 + (idx % 15)
       })),
       experiences: [
         {
-          company: 'Tech Solutions Inc.',
-          role: 'Senior Software Engineer',
+          company: 'Software Systems Inc.',
+          role: 'Full Stack Engineer',
           startDate: '2022-01',
           isCurrent: true,
-          description: 'Spearheaded full-stack application development, optimized MongoDB queries, and reduced server latency by 40%.',
-          technologies: ['React', 'TypeScript', 'Node.js', 'MongoDB']
+          description: 'Architected high-throughput web APIs, engineered modern frontend interfaces, and optimized database queries.',
+          technologies: skillList.slice(0, 4)
         }
       ],
       education: [
         {
-          institution: 'State University of Technology',
-          degree: 'Bachelor of Technology',
-          fieldOfStudy: 'Computer Science & Engineering',
-          startDate: '2017',
-          endDate: '2021'
+          institution: 'University of Technology',
+          degree: 'Bachelor of Science',
+          fieldOfStudy: 'Computer Science & Software Engineering',
+          startDate: '2018',
+          endDate: '2022'
         }
       ],
       projects: [
         {
-          title: 'Cloud Analytics Dashboard',
-          description: 'Real-time multi-tenant monitoring platform featuring custom domain routing and high-throughput logging.',
-          tags: ['Next.js', 'Tailwind', 'Redis', 'Docker'],
-          githubUrl: 'https://github.com/example/analytics',
-          liveUrl: 'https://analytics-demo.devvolio.com'
+          title: 'Developer Portfolio Engine',
+          description: 'Interactive multi-tenant portfolio system with automated AI resume parsing and custom domain support.',
+          tags: skillList.slice(0, 4),
+          githubUrl: githubMatch ? githubMatch[0] : 'https://github.com/developer',
+          liveUrl: 'https://devvolio.in'
         }
       ],
       certificates: [
         {
-          name: 'AWS Certified Solutions Architect',
-          issuer: 'Amazon Web Services',
+          name: 'Certified Full Stack Developer',
+          issuer: 'Tech Certification Authority',
           issueDate: '2023'
         }
       ],
       contact: {
-        email: email,
-        github: 'https://github.com/developer',
-        linkedin: 'https://linkedin.com/in/developer'
+        email: email || 'developer@devvolio.com',
+        github: githubMatch ? githubMatch[0] : 'https://github.com/developer',
+        linkedin: linkedinMatch ? linkedinMatch[0] : 'https://linkedin.com/in/developer'
       }
     };
   }

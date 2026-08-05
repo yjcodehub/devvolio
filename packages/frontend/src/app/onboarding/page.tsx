@@ -32,6 +32,7 @@ export default function OnboardingWizard() {
     try {
       const formData = new FormData();
       formData.append('resume', file);
+      formData.append('file', file);
 
       const res = await fetch(`${apiUrl}/ai/parse-resume`, {
         method: 'POST',

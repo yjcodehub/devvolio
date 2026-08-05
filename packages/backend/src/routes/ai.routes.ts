@@ -15,10 +15,14 @@ import {
   improveReadme
 } from '../controllers/ai.controller';
 
+import { uploadAndParseResume } from '../controllers/resume.controller';
+import { upload } from '../middleware/upload.middleware';
+
 const router = Router();
 
 router.use(authenticate, checkAiUsageLimit);
 
+router.post('/parse-resume', upload.any(), uploadAndParseResume);
 router.post('/generate-about', generateAbout);
 router.post('/improve-summary', improveSummary);
 router.post('/generate-project-desc', generateProjectDesc);
