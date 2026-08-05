@@ -1,0 +1,17 @@
+{
+  "name": "devvolio-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=@devvolio/backend",
+    "dev:frontend": "npm run dev --workspace=@devvolio/frontend",
+    "dev": "concurrently \"npm run dev --workspace=@devvolio/backend\" \"npm run dev --workspace=@devvolio/frontend\"",
+    "build": "npm run build --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 5% 98%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 250 89% 65%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 180 100% 38%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+
+    --radius: 0.75rem;
+
+    /* Brand Colors */
+    --brand-blue: #2259E6;
+    --brand-purple: #7C54ED;
+    --brand-orange: #FF9203;
+    --brand-charcoal: #181818;
+
+    /* Logo Gradient Colors */
+    --logo-stop-1: #2259E6;
+    --logo-stop-2: #7C54ED;
+    --logo-stop-3: #FF9203;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 5%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 250 89% 65%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 10%;
+    --input: 240 5.9% 10%;
+    --ring: 240 4.9% 83.9%;
+
+    /* Logo Gradient Colors (Dark Mode Neon variants) */
+    --logo-stop-1: #3b82f6;
+    --logo-stop-2: #a855f7;
+    --logo-stop-3: #f97316;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Lenis scroll system adjustments */
+html.lenis {
+  height: auto;
+}
+
+.lenis-clean html {
+  scroll-behavior: initial;
+}
+
+.lenis-clean body {
+  scroll-behavior: initial;
+}
+
+/* Custom interactive mouse follower styling */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: hsla(250, 89%, 65%, 0.3);
+  border: 1px solid hsl(250, 89%, 65%);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease;
+}
+
+.custom-cursor.active {
+  width: 45px;
+  height: 45px;
+  background-color: hsla(180, 100%, 50%, 0.2);
+  border-color: hsl(180, 100%, 50%);
+}
