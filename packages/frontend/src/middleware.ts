@@ -18,7 +18,16 @@ export function middleware(request: NextRequest) {
   const hostWithoutPort = rawHost.split(':')[0].toLowerCase();
 
   // Base platform domains (local development & production)
-  const baseDomains = ['devvolio.in', 'localhost', 'lvh.me', '127.0.0.1', 'app.devvolio.in'];
+  const baseDomains = [
+    'devvolio.in',
+    'www.devvolio.in',
+    'localhost',
+    'www.localhost',
+    'lvh.me',
+    'www.lvh.me',
+    '127.0.0.1',
+    'app.devvolio.in'
+  ];
   const isBaseDomain = baseDomains.includes(hostWithoutPort);
 
   if (!isBaseDomain) {
@@ -30,6 +39,10 @@ export function middleware(request: NextRequest) {
       tenantKey = hostWithoutPort.replace('.lvh.me', '');
     } else if (hostWithoutPort.endsWith('.localhost')) {
       tenantKey = hostWithoutPort.replace('.localhost', '');
+    }
+
+    if (tenantKey === 'www') {
+      return NextResponse.next();
     }
 
     // Dynamic rewrite to portfolio route folder
