@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
   // Strip port number if present (e.g., yash.lvh.me:3000 -> yash.lvh.me)
   const hostWithoutPort = rawHost.split(':')[0].toLowerCase();
 
-  // Base platform domains (local development & production)
+  // Base platform domains (local development & production & Vercel deployment previews)
   const baseDomains = [
     'devvolio.in',
     'www.devvolio.in',
@@ -28,7 +28,9 @@ export function middleware(request: NextRequest) {
     '127.0.0.1',
     'app.devvolio.in'
   ];
-  const isBaseDomain = baseDomains.includes(hostWithoutPort);
+  const isBaseDomain =
+    baseDomains.includes(hostWithoutPort) ||
+    hostWithoutPort.endsWith('.vercel.app');
 
   if (!isBaseDomain) {
     let tenantKey = hostWithoutPort;
