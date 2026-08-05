@@ -29,6 +29,7 @@ app.use(
         origin.endsWith('.lvh.me:3000') ||
         origin.endsWith('.devvolio.in') ||
         origin.endsWith('.localhost:3000') ||
+        origin.endsWith('.vercel.app') ||
         env.NODE_ENV === 'development'
       ) {
         callback(null, true);
