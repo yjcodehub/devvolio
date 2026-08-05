@@ -89,7 +89,7 @@ export async function getAllWorkspaces(req: AuthRequest, res: Response, next: Ne
 
     // Populate owner & subscription data
     const enrichedList = await Promise.all(
-      workspaces.map(async (ws) => {
+      workspaces.map(async (ws: any) => {
         const [owner, sub, portfolio] = await Promise.all([
           User.findById(ws.owner).select('name email role createdAt'),
           Subscription.findOne({ tenantId: ws._id }),
