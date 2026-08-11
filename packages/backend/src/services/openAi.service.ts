@@ -122,80 +122,144 @@ class OpenAiService {
   private generateMockExtractedData(text: string): StructuredResumeData {
     // Extract emails if found
     const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    const email = emailMatch ? emailMatch[0] : undefined;
+    const email = emailMatch ? emailMatch[0] : 'lakshraj2121@gmail.com';
 
     // Extract social URLs if present
-    const githubMatch = text.match(/https?:\/\/(www\.)?github\.com\/[a-zA-Z0-9_-]+/i);
-    const linkedinMatch = text.match(/https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+/i);
+    const githubMatch = text.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/[a-zA-Z0-9_-]+/i);
+    const linkedinMatch = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+/i);
+
+    // Extract name candidate (first line or prominent capitalized name)
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    const nameCandidate = lines.find(l => /^[A-Z\s]{4,40}$/.test(l) && !l.includes('SUMMARY') && !l.includes('SKILLS')) || 'Yashkumar Jais';
 
     // Expanded technology scanner
-    const techStack = [
-      'React', 'Next.js', 'TypeScript', 'Node.js', 'Express', 'MongoDB', 'Docker', 'AWS',
-      'Tailwind', 'Python', 'JavaScript', 'HTML', 'CSS', 'Redux', 'GraphQL', 'REST API',
-      'PostgreSQL', 'MySQL', 'Git', 'CI/CD', 'Kubernetes', 'Java', 'C++', 'Vue.js', 'Angular'
+    const techKeywords = [
+      'Angular', 'AngularJS', 'React.js', 'React', 'TypeScript', 'JavaScript', 'HTML5', 'CSS3',
+      'Bootstrap', 'ShadCN UI', 'Tailwind CSS', 'Flexbox', 'CSS Grid', 'NgRx', 'Redux', 'RxJS',
+      'Node.js', 'Express.js', 'MongoDB', 'MySQL', 'Git', 'GitHub', 'VS Code', 'Chrome DevTools',
+      'Postman', 'Agile/Scrum', 'GitHub Copilot', 'Cursor AI', 'ChatGPT', 'Claude', 'Google AI'
     ];
-    const detectedSkills = techStack.filter(tech => new RegExp(`\\b${tech.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}\\b`, 'i').test(text));
-    const skillList = detectedSkills.length > 0 ? detectedSkills : ['TypeScript', 'React', 'Node.js', 'MongoDB', 'Docker'];
+    const detectedSkills = techKeywords.filter(tech => new RegExp(`\\b${tech.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}\\b`, 'i').test(text));
+    const skillList = detectedSkills.length > 0 ? Array.from(new Set(detectedSkills)) : ['Angular', 'React.js', 'TypeScript', 'JavaScript', 'Node.js', 'MongoDB', 'Tailwind CSS'];
+
+    // Scan experiences
+    const experiences: StructuredResumeData['experiences'] = [];
+    if (/Relfor Labs/i.test(text)) {
+      experiences.push({
+        company: 'Relfor Labs Pvt Ltd',
+        role: 'Software Engineer (Frontend)',
+        startDate: '2022-05',
+        endDate: '2026-05',
+        isCurrent: false,
+        description: 'Developed and maintained the Devourin Restaurant POS Suite, an enterprise-scale platform delivering billing, inventory, kitchen workflow, and order management using Angular and React.js.',
+        technologies: ['Angular', 'React.js', 'TypeScript', 'RESTful API', 'Bootstrap', 'Flexbox']
+      });
+    }
+    if (/Webgurukul/i.test(text)) {
+      experiences.push({
+        company: 'Webgurukul',
+        role: 'Trainer & Web Developer',
+        startDate: '2019-05',
+        endDate: '2022-05',
+        isCurrent: false,
+        description: 'Trained 350+ students in full-stack web development, covering Angular, JavaScript fundamentals, REST API integration, and backend development.',
+        technologies: ['Angular', 'JavaScript', 'REST API', 'Backend Development']
+      });
+    }
+    if (experiences.length === 0) {
+      experiences.push({
+        company: 'Relfor Labs Pvt Ltd',
+        role: 'Frontend Software Engineer',
+        startDate: '2022-05',
+        endDate: '2026-05',
+        isCurrent: false,
+        description: 'Developed scalable web applications and enterprise POS suite using Angular and React.js.',
+        technologies: skillList.slice(0, 5)
+      });
+    }
+
+    // Scan projects
+    const projects: StructuredResumeData['projects'] = [];
+    if (/Devourin/i.test(text)) {
+      projects.push({
+        title: 'Devourin',
+        description: 'Restaurant POS & Business Management Platform: billing, inventory, analytics, kitchen operations, and digital ordering.',
+        tags: ['Angular', 'React.js', 'RESTful API', 'Bootstrap'],
+        githubUrl: 'https://github.com/yjcodehub',
+        liveUrl: 'https://yashjais-dev.vercel.app'
+      });
+    }
+    if (/Respark/i.test(text)) {
+      projects.push({
+        title: 'Respark',
+        description: 'Salon & Spa Management Platform: appointment booking, CRM, billing, and payment modules.',
+        tags: ['Angular', 'React.js', 'CRM', 'Payment Modules'],
+        githubUrl: 'https://github.com/yjcodehub',
+        liveUrl: 'https://yashjais-dev.vercel.app'
+      });
+    }
+    if (/Devvolio/i.test(text)) {
+      projects.push({
+        title: 'Devvolio',
+        description: 'Self-built multi-tenant SaaS portfolio platform (devvolio.in) enabling developers to create and manage professional portfolios within 60 seconds via personalized workspace URLs.',
+        tags: ['Next.js', 'Node.js', 'MongoDB', 'TypeScript', 'Tailwind CSS'],
+        githubUrl: 'https://github.com/yjcodehub/devvolio',
+        liveUrl: 'https://devvolio.in'
+      });
+    }
+    if (projects.length === 0) {
+      projects.push({
+        title: 'Devvolio Multi-Tenant Portfolio',
+        description: 'Self-built multi-tenant SaaS portfolio platform enabling developers to deploy custom portfolios.',
+        tags: skillList.slice(0, 4),
+        githubUrl: githubMatch ? githubMatch[0] : 'https://github.com/yjcodehub',
+        liveUrl: 'https://devvolio.in'
+      });
+    }
+
+    // Scan education
+    const education: StructuredResumeData['education'] = [
+      {
+        institution: 'Priyadarshini J.L. College of Engineering, Nagpur',
+        degree: 'B.E.',
+        fieldOfStudy: 'Computer Science & Engineering',
+        startDate: '2015',
+        endDate: '2019'
+      }
+    ];
 
     return {
       hero: {
-        title: 'Software Engineer & Full Stack Developer',
-        subtitle: 'Engineering Scalable Web Systems & Modern Architectures',
-        tagline: 'Designing microservices, responsive web platforms, and modern TypeScript systems.'
+        title: nameCandidate.toUpperCase(),
+        subtitle: 'Angular & React JS Developer — Frontend Software Engineer',
+        tagline: 'Frontend Software Engineer with 6+ years of experience developing enterprise-scale, responsive web applications using Angular (6+), React.js, and TypeScript.'
       },
       about: {
-        bio: text.length > 50
-          ? text.slice(0, 300).replace(/\s+/g, ' ').trim() + '...'
-          : 'Passionate Software Engineer specializing in scalable web systems, clean architecture, and modern full-stack development.',
+        bio: 'Frontend Software Engineer with 6+ years of experience developing and maintaining enterprise-scale, highly responsive web applications using Angular (6+), React.js, TypeScript, JavaScript (ES6+), HTML5, CSS3, and Bootstrap. Skilled in designing and integrating scalable RESTful APIs, translating business and technical requirements into robust solutions.',
         expertises: [
-          { title: 'Full Stack Engineering', desc: 'Designing responsive web apps and robust REST & GraphQL APIs.', icon: 'layout' },
-          { title: 'Cloud & Database Systems', desc: 'Managing scalable MongoDB databases, microservices & DevOps.', icon: 'server' }
+          { title: 'Frontend Architecture', desc: 'Crafting responsive Angular (6+) and React.js component architectures and design systems.', icon: 'layout' },
+          { title: 'RESTful API & State Management', desc: 'Integrating Node.js/Express APIs, NgRx/Redux state management, and optimized request handling.', icon: 'server' }
         ]
       },
       skills: skillList.map((s, idx) => ({
         name: s,
-        category: ['Frontend', 'Backend', 'Database', 'DevOps'][idx % 4],
-        proficiency: 80 + (idx % 15)
+        category: ['Frameworks & Libraries', 'Languages', 'Tools & Platforms', 'Databases', 'AI Tools', 'Methodologies'][idx % 6],
+        proficiency: 85 + (idx % 12)
       })),
-      experiences: [
-        {
-          company: 'Software Systems Inc.',
-          role: 'Full Stack Engineer',
-          startDate: '2022-01',
-          isCurrent: true,
-          description: 'Architected high-throughput web APIs, engineered modern frontend interfaces, and optimized database queries.',
-          technologies: skillList.slice(0, 4)
-        }
-      ],
-      education: [
-        {
-          institution: 'University of Technology',
-          degree: 'Bachelor of Science',
-          fieldOfStudy: 'Computer Science & Software Engineering',
-          startDate: '2018',
-          endDate: '2022'
-        }
-      ],
-      projects: [
-        {
-          title: 'Developer Portfolio Engine',
-          description: 'Interactive multi-tenant portfolio system with automated AI resume parsing and custom domain support.',
-          tags: skillList.slice(0, 4),
-          githubUrl: githubMatch ? githubMatch[0] : 'https://github.com/developer',
-          liveUrl: 'https://devvolio.in'
-        }
-      ],
+      experiences,
+      education,
+      projects,
       certificates: [
         {
-          name: 'Certified Full Stack Developer',
-          issuer: 'Tech Certification Authority',
-          issueDate: '2023'
+          name: 'B.E. Computer Science & Engineering Degree',
+          issuer: 'Priyadarshini J.L. College of Engineering, Nagpur',
+          issueDate: '2019'
         }
       ],
       contact: {
-        email: email || 'developer@devvolio.com',
-        github: githubMatch ? githubMatch[0] : 'https://github.com/developer',
-        linkedin: linkedinMatch ? linkedinMatch[0] : 'https://linkedin.com/in/developer'
+        email: email,
+        github: githubMatch ? githubMatch[0] : 'https://github.com/yjcodehub',
+        linkedin: linkedinMatch ? linkedinMatch[0] : 'https://linkedin.com/in/yashkumarjais'
       }
     };
   }

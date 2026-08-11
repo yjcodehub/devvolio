@@ -1,10 +1,14 @@
 import { Schema, model } from 'mongoose';
 
 const SkillSchema = new Schema({
+  tenantId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Workspace',
+    index: true
+  },
   name: {
     type: String,
     required: [true, 'Skill name is required'],
-    unique: true,
     trim: true
   },
   category: {
@@ -17,8 +21,13 @@ const SkillSchema = new Schema({
       'Domains',
       'Databases',
       'AI Tools',
-      'Methodologies'
-    ]
+      'Methodologies',
+      'Frontend',
+      'Backend',
+      'DevOps',
+      'Other'
+    ],
+    default: 'Frameworks & Libraries'
   },
   proficiency: {
     type: Number,
@@ -39,6 +48,7 @@ const SkillSchema = new Schema({
   }
 }, { timestamps: true });
 
+SkillSchema.index({ tenantId: 1, name: 1 });
 SkillSchema.index({ category: 1 });
 SkillSchema.index({ order: 1 });
 

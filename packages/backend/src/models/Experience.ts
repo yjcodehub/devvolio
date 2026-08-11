@@ -1,6 +1,11 @@
 import { Schema, model } from 'mongoose';
 
 const ExperienceSchema = new Schema({
+  tenantId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Workspace',
+    index: true
+  },
   role: {
     type: String,
     required: [true, 'Job title / Degree title is required'],
@@ -44,6 +49,7 @@ const ExperienceSchema = new Schema({
   }]
 }, { timestamps: true });
 
+ExperienceSchema.index({ tenantId: 1, startDate: -1 });
 ExperienceSchema.index({ startDate: -1 });
 ExperienceSchema.index({ type: 1 });
 
