@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import DevvolioLogo from '@/components/layout/DevvolioLogo';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 import { toast } from 'sonner';
 import { 
   Sparkles, Globe, Code2, Palette, Megaphone, Target, 
@@ -22,6 +22,17 @@ export default function OnboardingWizard() {
   const { user } = useAuthStore();
   const apiUrl = getApiUrl();
 
+  const getAdminDashboardUrl = () => {
+    if (typeof window !== 'undefined') {
+      const host = window.location.host;
+      if (host.includes('localhost') || host.includes('127.0.0.1')) {
+        return `http://${host}/admin/dashboard`;
+      }
+      return 'https://app.devvolio.in/admin/dashboard';
+    }
+    return 'https://app.devvolio.in/admin/dashboard';
+  };
+
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -36,6 +47,7 @@ export default function OnboardingWizard() {
 
       const res = await fetch(`${apiUrl}/ai/parse-resume`, {
         method: 'POST',
+        headers: getAuthHeaders(),
         body: formData,
         credentials: 'include'
       });
@@ -67,7 +79,7 @@ export default function OnboardingWizard() {
       // Save initial hero tagline & discipline preferences
       await fetch(`${apiUrl}/settings`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           hero: {
             title: user?.name || user?.username || 'Developer',
@@ -234,7 +246,7 @@ export default function OnboardingWizard() {
 
               <div className="p-4 rounded-xl border border-border bg-card/60 font-mono text-xs text-primary flex items-center justify-between">
                 <span>Subdomain URL:</span>
-                <span className="font-bold">http://localhost:3000/admin/dashboard</span>
+                <span className="font-bold">{getAdminDashboardUrl()}</span>
               </div>
 
               <button

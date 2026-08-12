@@ -13,6 +13,7 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  COOKIE_DOMAIN: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Loader2 } from 'lucide-react';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 interface AdminGuardProps {
   children: React.ReactNode;
@@ -22,8 +22,11 @@ export default function AdminGuard({ children }: AdminGuardProps) {
     const verifySession = async () => {
       try {
         const apiUrl = getApiUrl();
-        // Credentials required to transmit HttpOnly JWT session cookies automatically
-        const res = await fetch(`${apiUrl}/auth/me`, { credentials: 'include' });
+        // Credentials and Authorization headers required to transmit JWT session tokens
+        const res = await fetch(`${apiUrl}/auth/me`, {
+          headers: getAuthHeaders(),
+          credentials: 'include'
+        });
         
         if (!res.ok) throw new Error('Unauthorized');
         

@@ -6,7 +6,7 @@ import {
   Terminal, User, Monitor, Layers, Database, Globe, Sliders, Music, Award, Github, ShieldCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 import DomainSettingsTab from '@/components/admin/DomainSettingsTab';
 
 interface TerminalStep {
@@ -62,7 +62,7 @@ export default function SettingsManager() {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/settings`, { credentials: 'include' });
+      const res = await fetch(`${apiUrl}/settings`, { headers: getAuthHeaders(), credentials: 'include' });
       const json = await res.json();
       if (res.ok && json.success) {
         const data = json.data;
@@ -180,7 +180,7 @@ export default function SettingsManager() {
 
       const res = await fetch(`${apiUrl}/settings`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
         credentials: 'include'
       });

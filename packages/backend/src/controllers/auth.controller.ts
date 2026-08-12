@@ -14,6 +14,7 @@ const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: isProduction,
   sameSite: isProduction ? ('none' as const) : ('lax' as const),
+  ...(process.env.COOKIE_DOMAIN ? { domain: process.env.COOKIE_DOMAIN } : {})
 };
 
 export async function checkSubdomain(req: Request, res: Response, next: NextFunction) {
@@ -224,6 +225,8 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     });
 
     return sendSuccess(res, {
+      token: accessToken,
+      refreshToken,
       user: {
         id: user._id,
         name: user.name,
@@ -272,6 +275,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     });
 
     return sendSuccess(res, {
+      token: accessToken,
+      refreshToken,
       id: user._id,
       username: user.username,
       email: user.email,
@@ -310,7 +315,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    return sendSuccess(res, null, 'Session access token refreshed');
+    return sendSuccess(res, { token: newAccessToken }, 'Session access token refreshed');
 
   } catch (error) {
     next(error);
