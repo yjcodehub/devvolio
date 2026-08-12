@@ -27,60 +27,72 @@ export class EmailService {
       const senderName = process.env.BREVO_SENDER_NAME?.trim() || 'Devvolio SaaS';
 
       if (apiKey) {
-        // A. If the key is an SMTP key (starts with xsmtpsib-), send via Brevo SMTP Relay
-        if (apiKey.startsWith('xsmtpsib-')) {
-          console.log(`[EmailService] Dispatching via Brevo SMTP Relay (${senderEmail})...`);
-          const smtpTransporter = nodemailer.createTransport({
-            host: 'smtp-relay.brevo.com',
-            port: 587,
-            secure: false,
-            auth: {
-              user: senderEmail,
-              pass: apiKey
-            }
+        // 1. Try Brevo REST API over HTTPS (Port 443 - Never blocked by Render)
+        try {
+          console.log(`[EmailService] Dispatching via Brevo REST API (${senderEmail})...`);
+          const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+              'accept': 'application/json',
+              'api-key': apiKey,
+              'content-type': 'application/json'
+            },
+            signal: AbortSignal.timeout(6000), // 6 second timeout safeguard
+            body: JSON.stringify({
+              sender: { name: senderName, email: senderEmail },
+              to: [{ email }],
+              subject,
+              htmlContent: htmlBody
+            })
           });
 
-          await smtpTransporter.sendMail({
-            from: `"${senderName}" <${senderEmail}>`,
-            to: email,
-            subject,
-            html: htmlBody
-          });
+          const responseData = await res.json().catch(() => ({}));
 
-          console.log('[EmailService] OTP Email sent successfully via Brevo SMTP Relay');
-          return true;
+          if (res.ok) {
+            console.log('[EmailService] OTP Email sent successfully via Brevo REST API:', responseData);
+            return true;
+          } else {
+            console.error('[EmailService] Brevo REST API Error:', res.status, responseData);
+          }
+        } catch (apiErr: any) {
+          console.error('[EmailService] Brevo REST API Network/Timeout Error:', apiErr.message || apiErr);
         }
 
-        // B. If the key is an HTTP API key (starts with xkeysib-), send via Brevo REST API
-        console.log(`[EmailService] Dispatching via Brevo REST API (${senderEmail})...`);
-        const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-          method: 'POST',
-          headers: {
-            'accept': 'application/json',
-            'api-key': apiKey,
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify({
-            sender: { name: senderName, email: senderEmail },
-            to: [{ email }],
-            subject,
-            htmlContent: htmlBody
-          })
-        });
+        // 2. Fallback to Brevo SMTP Relay over Port 587 if REST API failed
+        if (apiKey.startsWith('xsmtpsib-')) {
+          try {
+            console.log(`[EmailService] Falling back to Brevo SMTP Relay (${senderEmail})...`);
+            const smtpTransporter = nodemailer.createTransport({
+              host: 'smtp-relay.brevo.com',
+              port: 587,
+              secure: false,
+              connectionTimeout: 5000,
+              greetingTimeout: 5000,
+              auth: {
+                user: senderEmail,
+                pass: apiKey
+              }
+            });
 
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          console.error('[EmailService] Brevo REST API Error:', res.status, errData);
-        } else {
-          console.log('[EmailService] OTP Email sent successfully via Brevo REST API');
-          return true;
+            await smtpTransporter.sendMail({
+              from: `"${senderName}" <${senderEmail}>`,
+              to: email,
+              subject,
+              html: htmlBody
+            });
+
+            console.log('[EmailService] OTP Email sent successfully via Brevo SMTP Relay');
+            return true;
+          } catch (smtpErr: any) {
+            console.error('[EmailService] Brevo SMTP Relay Error:', smtpErr.message || smtpErr);
+          }
         }
       }
 
-      console.warn('[EmailService] BREVO_API_KEY not configured. OTP code logged to server console above.');
+      console.warn('[EmailService] Could not send email via Brevo. Code logged to server console above.');
       return true;
     } catch (err) {
-      console.error('[EmailService] Failed to send OTP email:', err);
+      console.error('[EmailService] Unexpected error sending OTP email:', err);
       return false;
     }
   }

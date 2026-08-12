@@ -7,24 +7,41 @@ import DevvolioLogo from '@/components/layout/DevvolioLogo';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getApiUrl } from '@/utils/api';
 import { toast } from 'sonner';
-import { Check, X, Loader2, ArrowRight, Globe, User, Mail, Lock, Phone, KeyRound, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Check, X, Loader2, ArrowRight, Globe, User, Mail, Lock, Phone, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function SignupPage() {
-  const [step, setStep] = useState<'info' | 'otp'>('info');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [desiredSubdomain, setDesiredSubdomain] = useState('');
-  
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    mobile?: string;
+    password?: string;
+    confirmPassword?: string;
+  }>({});
+
+  const [touched, setTouched] = useState<{
+    name?: boolean;
+    email?: boolean;
+    mobile?: boolean;
+    password?: boolean;
+    confirmPassword?: boolean;
+  }>({});
+
   const [subdomainStatus, setSubdomainStatus] = useState<{ available: boolean | null; checking: boolean; message: string }>({
     available: null,
     checking: false,
     message: ''
   });
 
-  const [sendingOtp, setSendingOtp] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const router = useRouter();
   const { setUser } = useAuthStore();
@@ -65,38 +82,138 @@ export default function SignupPage() {
     return () => clearTimeout(timer);
   }, [desiredSubdomain, apiUrl]);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !email || !password) {
-      toast.error('Please fill in all required fields');
-      return;
+  // --- Validation Rules ---
+  const validateField = (field: string, val: string, currentName = name, currentPassword = password) => {
+    let errorMsg: string | undefined = undefined;
+
+    if (field === 'name') {
+      if (!val.trim()) {
+        errorMsg = 'Full Name is required';
+      } else if (!/^[A-Za-z\s]+$/.test(val.trim())) {
+        errorMsg = 'Full Name must contain only alphabets (no numbers or special symbols)';
+      } else if (val.trim().length < 2) {
+        errorMsg = 'Full Name must be at least 2 characters long';
+      }
     }
 
-    setSendingOtp(true);
-    try {
-      const res = await fetch(`${apiUrl}/auth/send-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-        credentials: 'include'
-      });
-
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || 'Failed to send OTP verification code');
-
-      toast.success(`📩 6-Digit OTP sent to ${email}`);
-      setStep('otp');
-    } catch (err: any) {
-      toast.error(err.message || 'OTP dispatch error');
-    } finally {
-      setSendingOtp(false);
+    if (field === 'email') {
+      if (!val.trim()) {
+        errorMsg = 'Email address is required';
+      } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(val.trim())) {
+        errorMsg = 'Please enter a valid email address';
+      }
     }
+
+    if (field === 'mobile') {
+      if (val.trim()) {
+        const cleanMobile = val.replace(/[^0-9]/g, '');
+        if (cleanMobile.length !== 10) {
+          errorMsg = 'Mobile number must be exactly 10 digits';
+        }
+      }
+    }
+
+    if (field === 'password') {
+      if (!val) {
+        errorMsg = 'Password is required';
+      } else if (val.length < 8 || val.length > 16) {
+        errorMsg = 'Password must be between 8 and 16 characters long';
+      } else if (!/[A-Z]/.test(val)) {
+        errorMsg = 'Must contain at least one uppercase letter (A-Z)';
+      } else if (!/[a-z]/.test(val)) {
+        errorMsg = 'Must contain at least one lowercase letter (a-z)';
+      } else if (!/[0-9]/.test(val)) {
+        errorMsg = 'Must contain at least one number (0-9)';
+      } else if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)) {
+        errorMsg = 'Must contain at least one special symbol (!@#$%^&*)';
+      } else {
+        // Pattern & Sequence checks (e.g. 123, 987, 999, John@123)
+        const sequences = ['123', '234', '345', '456', '567', '678', '789', '987', '876', '765', '654', '543', '432', '321'];
+        for (const seq of sequences) {
+          if (val.includes(seq)) {
+            errorMsg = `Password cannot contain simple sequences like '${seq}'`;
+            break;
+          }
+        }
+        if (!errorMsg) {
+          const repeats = ['000', '111', '222', '333', '444', '555', '666', '777', '888', '999'];
+          for (const rep of repeats) {
+            if (val.includes(rep)) {
+              errorMsg = `Password cannot contain repeated numbers like '${rep}'`;
+              break;
+            }
+          }
+        }
+        if (!errorMsg && currentName.trim()) {
+          const nameParts = currentName.toLowerCase().trim().split(/\s+/);
+          const pwdLower = val.toLowerCase();
+          for (const part of nameParts) {
+            if (part.length >= 3 && pwdLower.includes(part)) {
+              errorMsg = `Password cannot contain your name ("${part}")`;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    if (field === 'confirmPassword') {
+      if (!val) {
+        errorMsg = 'Confirm Password is required';
+      } else if (val !== currentPassword) {
+        errorMsg = 'Passwords do not match';
+      }
+    }
+
+    return errorMsg;
   };
 
-  const handleVerifyAndRegister = async (e: React.FormEvent) => {
+  const validateAll = () => {
+    const newErrors: Record<string, string | undefined> = {
+      name: validateField('name', name),
+      email: validateField('email', email),
+      mobile: validateField('mobile', mobile),
+      password: validateField('password', password),
+      confirmPassword: validateField('confirmPassword', confirmPassword, name, password)
+    };
+
+    // Filter undefined
+    const cleanErrors: Record<string, string> = {};
+    Object.keys(newErrors).forEach((key) => {
+      if (newErrors[key]) {
+        cleanErrors[key] = newErrors[key]!;
+      }
+    });
+
+    setErrors(cleanErrors);
+    return Object.keys(cleanErrors).length === 0;
+  };
+
+  const handleBlur = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    let val = '';
+    if (field === 'name') val = name;
+    if (field === 'email') val = email;
+    if (field === 'mobile') val = mobile;
+    if (field === 'password') val = password;
+    if (field === 'confirmPassword') val = confirmPassword;
+
+    const err = validateField(field, val);
+    setErrors((prev) => ({ ...prev, [field]: err }));
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otp || otp.trim().length !== 6) {
-      toast.error('Please enter the 6-digit OTP code sent to your email');
+    setTouched({
+      name: true,
+      email: true,
+      mobile: true,
+      password: true,
+      confirmPassword: true
+    });
+
+    if (!validateAll()) {
+      toast.error('Please resolve validation errors before submitting');
       return;
     }
 
@@ -110,7 +227,6 @@ export default function SignupPage() {
           email,
           mobile,
           password,
-          otp: otp.trim(),
           desiredSubdomain
         }),
         credentials: 'include'
@@ -120,10 +236,10 @@ export default function SignupPage() {
       if (!res.ok) throw new Error(json.message || 'Registration failed');
 
       setUser(json.data.user);
-      toast.success(`🎉 Email Verified! Welcome to Devvolio, ${name}!`);
+      toast.success(`🎉 Account Created! Welcome to Devvolio, ${name}!`);
       router.replace('/onboarding');
     } catch (err: any) {
-      toast.error(err.message || 'Verification error');
+      toast.error(err.message || 'Registration error');
     } finally {
       setVerifying(false);
     }
@@ -141,192 +257,236 @@ export default function SignupPage() {
             <DevvolioLogo iconSize={32} />
           </div>
           <h1 className="font-display text-2xl font-extrabold tracking-tight">
-            {step === 'info' ? 'Create Your Developer Portfolio' : 'Verify Your Email OTP'}
+            Create Your Developer Portfolio
           </h1>
           <p className="text-xs text-muted-foreground">
-            {step === 'info'
-              ? 'Claim your subdomain and complete email OTP verification to launch.'
-              : `Enter the 6-digit verification code sent to ${email}`}
+            Claim your custom subdomain and launch your developer workspace instantly.
           </p>
         </div>
 
         {/* Form Card */}
         <div className="p-8 rounded-2xl border border-border/80 bg-card/40 backdrop-blur-xl shadow-2xl space-y-6">
-          {step === 'info' ? (
-            /* STEP 1: Account Info Form */
-            <form onSubmit={handleSendOtp} className="space-y-4 text-left">
+          <form onSubmit={handleRegister} className="space-y-4 text-left">
+            {/* Full Name */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-primary" /> Full Name
+              </label>
+              <input
+                type="text"
+                required
+                value={name}
+                onBlur={() => handleBlur('name')}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (touched.name) {
+                    setErrors((prev) => ({ ...prev, name: validateField('name', e.target.value) }));
+                  }
+                }}
+                placeholder="Yashkumar Jais"
+                className={`w-full px-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
+                  errors.name ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
+                }`}
+              />
+              {errors.name && (
+                <p className="text-[11px] text-red-500 font-medium mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 flex-shrink-0 text-red-500" /> {errors.name}
+                </p>
+              )}
+            </div>
+
+            {/* Email & Mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Email */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-primary" /> Full Name
+                  <Mail className="w-3.5 h-3.5 text-primary" /> Email Address
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Yashkumar Jais"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-card/60 text-xs text-foreground focus:outline-none focus:border-primary transition-all"
+                  value={email}
+                  onBlur={() => handleBlur('email')}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (touched.email) {
+                      setErrors((prev) => ({ ...prev, email: validateField('email', e.target.value) }));
+                    }
+                  }}
+                  placeholder="yash@devvolio.in"
+                  className={`w-full px-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
+                    errors.email ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
+                  }`}
                 />
+                {errors.email && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 flex-shrink-0 text-red-500" /> {errors.email}
+                  </p>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-primary" /> Email Address
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="yash@devvolio.in"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-card/60 text-xs text-foreground focus:outline-none focus:border-primary transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-primary" /> Mobile Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    placeholder="+91 98765 43210"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-card/60 text-xs text-foreground focus:outline-none focus:border-primary transition-all"
-                  />
-                </div>
-              </div>
-
+              {/* Mobile Number */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-primary" /> Create Password
+                  <Phone className="w-3.5 h-3.5 text-primary" /> Mobile Number
                 </label>
                 <input
-                  type="password"
+                  type="tel"
+                  maxLength={10}
+                  value={mobile}
+                  onBlur={() => handleBlur('mobile')}
+                  onChange={(e) => {
+                    const clean = e.target.value.replace(/[^0-9]/g, '');
+                    setMobile(clean);
+                    if (touched.mobile) {
+                      setErrors((prev) => ({ ...prev, mobile: validateField('mobile', clean) }));
+                    }
+                  }}
+                  placeholder="9876543210"
+                  className={`w-full px-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
+                    errors.mobile ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
+                  }`}
+                />
+                {errors.mobile && (
+                  <p className="text-[11px] text-red-500 font-medium mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 flex-shrink-0 text-red-500" /> {errors.mobile}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Create Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-primary" /> Create Password
+              </label>
+              <div className="relative flex items-center">
+                <input
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => handleBlur('password')}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (touched.password) {
+                      setErrors((prev) => ({
+                        ...prev,
+                        password: validateField('password', e.target.value, name),
+                        confirmPassword: confirmPassword ? validateField('confirmPassword', confirmPassword, name, e.target.value) : prev.confirmPassword
+                      }));
+                    }
+                  }}
                   placeholder="••••••••••••"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-card/60 text-xs text-foreground focus:outline-none focus:border-primary transition-all"
+                  className={`w-full pr-10 pl-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
+                    errors.password ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
+                  }`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 text-muted-foreground hover:text-foreground transition-colors p-1"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
-
-              <div className="space-y-1.5 pt-2 border-t border-border/40">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    <Globe className="w-3.5 h-3.5 text-primary" /> Desired Subdomain
-                  </label>
-
-                  {subdomainStatus.checking ? (
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin" /> Checking...
-                    </span>
-                  ) : subdomainStatus.available === true ? (
-                    <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Available
-                    </span>
-                  ) : subdomainStatus.available === false ? (
-                    <span className="text-[10px] text-amber-400 font-bold flex items-center gap-1">
-                      <X className="w-3 h-3" /> Taken (will append digits)
-                    </span>
-                  ) : null}
-                </div>
-
-                <div className="relative flex items-center">
-                  <input
-                    type="text"
-                    value={desiredSubdomain}
-                    onChange={(e) => setDesiredSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                    placeholder="yash"
-                    className="w-full pr-28 pl-3.5 py-2.5 rounded-xl border border-border bg-card/60 text-xs font-mono text-primary font-bold focus:outline-none focus:border-primary transition-all"
-                  />
-                  <span className="absolute right-3.5 text-xs text-muted-foreground font-mono select-none">
-                    .devvolio.in
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={sendingOtp}
-                className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-extrabold transition-all shadow-lg shadow-primary/20"
-              >
-                {sendingOtp ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Sending OTP Code...
-                  </>
-                ) : (
-                  <>
-                    Send OTP Verification Code <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </form>
-          ) : (
-            /* STEP 2: OTP Input & Verification Form */
-            <form onSubmit={handleVerifyAndRegister} className="space-y-4 text-left">
-              <div className="space-y-2 text-center py-2">
-                <div className="p-3 rounded-full bg-emerald-500/10 text-emerald-400 inline-block">
-                  <KeyRound className="w-6 h-6" />
-                </div>
-                <p className="text-xs font-semibold text-foreground">
-                  Check your inbox for a 6-digit verification code sent to <span className="text-primary font-bold">{email}</span>.
+              {errors.password && (
+                <p className="text-[11px] text-red-500 font-medium mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 flex-shrink-0 text-red-500" /> {errors.password}
                 </p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-primary" /> Confirm Password
+              </label>
+              <div className="relative flex items-center">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  value={confirmPassword}
+                  onBlur={() => handleBlur('confirmPassword')}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (touched.confirmPassword) {
+                      setErrors((prev) => ({ ...prev, confirmPassword: validateField('confirmPassword', e.target.value, name, password) }));
+                    }
+                  }}
+                  placeholder="••••••••••••"
+                  className={`w-full pr-10 pl-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
+                    errors.confirmPassword ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3.5 text-muted-foreground hover:text-foreground transition-colors p-1"
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <p className="text-[11px] text-red-500 font-medium mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 flex-shrink-0 text-red-500" /> {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+
+            {/* Desired Subdomain */}
+            <div className="space-y-1.5 pt-2 border-t border-border/40">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-primary" /> Desired Subdomain
+                </label>
+
+                {subdomainStatus.checking ? (
+                  <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Checking...
+                  </span>
+                ) : subdomainStatus.available === true ? (
+                  <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Available
+                  </span>
+                ) : subdomainStatus.available === false ? (
+                  <span className="text-[10px] text-amber-400 font-bold flex items-center gap-1">
+                    <X className="w-3 h-3" /> Taken (will append digits)
+                  </span>
+                ) : null}
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground flex items-center gap-1.5 justify-center">
-                  Enter 6-Digit OTP
-                </label>
+              <div className="relative flex items-center">
                 <input
                   type="text"
-                  maxLength={6}
-                  required
-                  autoFocus
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ''))}
-                  placeholder="123456"
-                  className="w-full text-center px-4 py-3 rounded-xl border border-primary/50 bg-card/60 text-lg font-mono tracking-[8px] text-foreground font-bold focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                  value={desiredSubdomain}
+                  onChange={(e) => setDesiredSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                  placeholder="yash"
+                  className="w-full pr-28 pl-3.5 py-2.5 rounded-xl border border-border bg-card/60 text-xs font-mono text-primary font-bold focus:outline-none focus:border-primary transition-all"
                 />
+                <span className="absolute right-3.5 text-xs text-muted-foreground font-mono select-none">
+                  .devvolio.in
+                </span>
               </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={verifying || otp.length !== 6}
-                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
-              >
-                {verifying ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Verifying Code & Provisioning...
-                  </>
-                ) : (
-                  <>
-                    Verify OTP & Create Workspace <ShieldCheck className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-
-              <div className="flex justify-between items-center pt-3 border-t border-border/40 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setStep('info')}
-                  className="text-muted-foreground hover:text-foreground flex items-center gap-1"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" /> Edit Info
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={sendingOtp}
-                  className="text-primary font-bold hover:underline"
-                >
-                  Resend OTP
-                </button>
-              </div>
-            </form>
-          )}
+            <button
+              type="submit"
+              disabled={verifying}
+              className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-extrabold transition-all shadow-lg shadow-primary/20"
+            >
+              {verifying ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Creating Account & Workspace...
+                </>
+              ) : (
+                <>
+                  Create Account & Launch <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
 
           {/* Login Link */}
           <div className="text-center pt-2 text-xs text-muted-foreground">
