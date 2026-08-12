@@ -9,7 +9,7 @@ export interface TokenPayload {
 
 export function generateAccessToken(payload: TokenPayload): string {
   return jwt.sign(payload, env.JWT_SECRET, {
-    expiresIn: '15m' // 15 minutes short-lived access token
+    expiresIn: '7d' // 7 days session access token
   });
 }
 
