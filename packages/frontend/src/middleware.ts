@@ -51,9 +51,25 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL(`/${tenantKey}${url.pathname}`, request.url));
   }
 
-  // Rewrite SaaS app subdomain traffic to Dashboard routes
+  // Redirect admin, superadmin, and onboarding routes on root domain to app.devvolio.in in production
+  const isAdminOrAppRoute =
+    url.pathname.startsWith('/admin') ||
+    url.pathname.startsWith('/onboarding') ||
+    url.pathname.startsWith('/superadmin');
+
+  if (
+    isAdminOrAppRoute &&
+    (hostWithoutPort === 'devvolio.in' || hostWithoutPort === 'www.devvolio.in')
+  ) {
+    return NextResponse.redirect(`https://app.devvolio.in${url.pathname}${url.search}`);
+  }
+
+  // Handle SaaS app subdomain (app.devvolio.in)
   if (hostWithoutPort === 'app.devvolio.in') {
-    return NextResponse.rewrite(new URL(`/dashboard${url.pathname}`, request.url));
+    if (url.pathname === '/') {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+    }
+    return NextResponse.next();
   }
 
   return NextResponse.next();
