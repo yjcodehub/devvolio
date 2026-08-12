@@ -33,78 +33,81 @@ export async function checkSubdomain(req: Request, res: Response, next: NextFunc
   }
 }
 
+/*
+// OTP Verification endpoint commented out for direct synchronous registration
 export async function sendRegisterOtp(req: Request, res: Response, next: NextFunction) {
   try {
     const { email } = req.body;
-
-    if (!email) {
-      return next(new AppError('Please provide an email address', 400));
-    }
-
+    if (!email) return next(new AppError('Please provide an email address', 400));
     const cleanEmail = email.toLowerCase().trim();
-
-    // Check if user already registered
     const existingUser = await User.findOne({ email: cleanEmail });
-    if (existingUser) {
-      return next(new AppError('An account with this email already exists. Please log in.', 400));
-    }
-
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-
-    // Upsert OTP record
-    await OtpVerification.deleteMany({ email: cleanEmail });
-    await OtpVerification.create({
-      email: cleanEmail,
-      otp,
-      expiresAt
-    });
-
-    // Dispatch OTP via EmailService
-    await EmailService.sendOtpEmail(cleanEmail, otp);
-
-    const responsePayload: Record<string, any> = { email: cleanEmail };
-    // Provide devOtp fallback if in development or if ALLOW_DEV_OTP flag is set or BREVO_API_KEY is missing
-    if (
-      process.env.NODE_ENV !== 'production' ||
-      process.env.ALLOW_DEV_OTP === 'true' ||
-      !process.env.BREVO_API_KEY
-    ) {
-      responsePayload.devOtp = otp;
-    }
-
-    return sendSuccess(res, responsePayload, '6-digit OTP verification code sent to your email.');
+    if (existingUser) return next(new AppError('An account with this email already exists. Please log in.', 400));
+    return sendSuccess(res, { email: cleanEmail }, 'Direct registration active. OTP skipped.');
   } catch (error) {
     next(error);
   }
+}
+*/
+
+export async function sendRegisterOtp(req: Request, res: Response, next: NextFunction) {
+  return sendSuccess(res, { message: 'OTP is disabled. Please proceed directly to register.' });
 }
 
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
     const { name, email, mobile, password, otp, desiredSubdomain } = req.body;
 
-    if (!name || !email || !password || !otp) {
-      return next(new AppError('Please provide name, email, password, and OTP code', 400));
+    if (!name || !email || !password) {
+      return next(new AppError('Please provide name, email, and password', 400));
+    }
+
+    // 1. Validate Full Name (alphabets and spaces only)
+    if (!/^[A-Za-z\s]+$/.test(name.trim())) {
+      return next(new AppError('Full Name can only contain letters and spaces (no numbers or symbols)', 400));
     }
 
     const cleanEmail = email.toLowerCase().trim();
 
-    // 1. Verify OTP
-    const otpRecord = await OtpVerification.findOne({ email: cleanEmail, otp });
-    if (!otpRecord) {
-      return next(new AppError('Invalid OTP verification code. Please check your email or request a new code.', 400));
+    // 2. Validate Email format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return next(new AppError('Please enter a valid email address', 400));
     }
 
-    if (otpRecord.expiresAt < new Date()) {
-      await OtpVerification.deleteOne({ _id: otpRecord._id });
-      return next(new AppError('OTP verification code has expired. Please request a new code.', 400));
+    // 3. Validate Mobile number (must be 10 digits if provided)
+    if (mobile && mobile.trim()) {
+      const cleanMobile = mobile.replace(/[^0-9]/g, '');
+      if (cleanMobile.length !== 10) {
+        return next(new AppError('Mobile number must be exactly 10 digits', 400));
+      }
     }
 
-    // Delete verified OTP record
-    await OtpVerification.deleteOne({ _id: otpRecord._id });
+    // 4. Validate Password Complexity
+    if (password.length < 8 || password.length > 16) {
+      return next(new AppError('Password must be between 8 and 16 characters long', 400));
+    }
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return next(new AppError('Password must contain at least one uppercase letter, lowercase letter, number, and special symbol', 400));
+    }
 
-    // 2. Check if user email exists
+    // Check simple sequences or repeated numbers
+    const sequences = ['123', '234', '345', '456', '567', '678', '789', '987', '876', '765', '654', '543', '432', '321', '000', '111', '222', '333', '444', '555', '666', '777', '888', '999'];
+    for (const seq of sequences) {
+      if (password.includes(seq)) {
+        return next(new AppError(`Password cannot contain simple sequences or repeated numbers like '${seq}'`, 400));
+      }
+    }
+
+    // Check password for user's name
+    const nameParts = name.toLowerCase().trim().split(/\s+/);
+    const pwdLower = password.toLowerCase();
+    for (const part of nameParts) {
+      if (part.length >= 3 && pwdLower.includes(part)) {
+        return next(new AppError(`Password cannot contain your name ("${part}")`, 400));
+      }
+    }
+
+    // 5. Check if user email exists
     const existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
       return next(new AppError('An account with this email already exists. Please log in.', 400));
