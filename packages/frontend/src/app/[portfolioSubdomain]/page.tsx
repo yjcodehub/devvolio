@@ -76,7 +76,7 @@ export default function TenantPortfolioPage({ params }: PortfolioPageProps) {
           The portfolio workspace for <code className="text-primary font-mono font-bold">{subdomain}</code> does not exist, has been suspended, or is currently unassigned.
         </p>
         <a
-          href="http://localhost:3000"
+          href={typeof window !== 'undefined' && window.location.hostname.endsWith('devvolio.in') ? 'https://devvolio.in' : '/'}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold text-xs transition-all shadow-lg shadow-primary/20"
         >
           <Globe className="w-4 h-4" />

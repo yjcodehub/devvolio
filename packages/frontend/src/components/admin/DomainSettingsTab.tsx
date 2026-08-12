@@ -1,7 +1,5 @@
-'use client';
-
 import React, { useState } from 'react';
-import { Globe, CheckCircle2, AlertTriangle, ExternalLink, RefreshCw, Copy, Check, ShieldCheck } from 'lucide-react';
+import { Globe, CheckCircle2, AlertTriangle, ExternalLink, RefreshCw, Copy, Check, ShieldCheck, Sparkles, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { getApiUrl } from '@/utils/api';
 
@@ -106,12 +104,22 @@ export default function DomainSettingsTab({
             <code className="text-sm font-bold text-primary font-mono">{prodSubdomainUrl}</code>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={prodSubdomainUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-bold transition-all shadow-md shadow-primary/20 hover:scale-105"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Visit Production Subdomain
+            </a>
+
             <a
               href={defaultSubdomainUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/40 text-xs font-semibold text-foreground transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card hover:bg-muted/40 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               Test Local Subdomain
@@ -120,122 +128,68 @@ export default function DomainSettingsTab({
         </div>
       </div>
 
-      {/* Custom Domain Settings & DNS Verification Panel */}
-      <div className="rounded-xl border border-border bg-card/30 p-6 space-y-6">
+      {/* Custom Domain Settings & Skeleton Placeholder Panel */}
+      <div className="rounded-xl border border-border/80 bg-card/30 p-6 space-y-6 relative overflow-hidden">
+        {/* Header Title with Coming Soon Badge */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-primary/10 text-primary">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-foreground">Custom Domain Mapping</h2>
-              <p className="text-xs text-muted-foreground">Connect your own domain (e.g. john.dev, alexname.com)</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-foreground">Custom Domain Mapping</h2>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <Sparkles className="w-3 h-3" /> Coming Soon
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">Connect your own custom domain (e.g. john.dev, alexname.com) with automated SSL</p>
             </div>
           </div>
-
-          {customDomain && (
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
-              domainStatus === 'active'
-                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
-            }`}>
-              {domainStatus === 'active' ? (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Domain Active & SSL Secured
-                </>
-              ) : (
-                <>
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  DNS Verification Pending
-                </>
-              )}
-            </span>
-          )}
         </div>
 
-        {/* Input Form */}
-        <form onSubmit={handleSaveDomain} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              Your Custom Domain
-            </label>
+        {/* Skeleton Preview Overlay */}
+        <div className="p-6 rounded-2xl border border-dashed border-primary/30 bg-primary/5 space-y-6 relative">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Custom Domain Configuration (Pro Feature)</span>
+              <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <Lock className="w-3 h-3" /> Custom Domains Module Launching Soon
+              </span>
+            </div>
             <div className="flex gap-3">
               <input
                 type="text"
-                value={domainInput}
-                onChange={(e) => setDomainInput(e.target.value)}
+                disabled
                 placeholder="e.g. john.dev or alexname.com"
-                disabled={saving}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-border bg-card/60 text-xs text-foreground focus:outline-none focus:border-primary"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-border/60 bg-card/40 text-xs text-muted-foreground cursor-not-allowed font-mono"
               />
               <button
-                type="submit"
-                disabled={saving}
-                className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/95 text-white text-xs font-semibold transition-all shadow-md shadow-primary/20 disabled:opacity-50"
+                disabled
+                className="px-5 py-2.5 rounded-xl bg-muted text-muted-foreground text-xs font-semibold cursor-not-allowed opacity-60"
               >
-                {saving ? 'Saving...' : 'Connect Domain'}
+                Connect Domain
               </button>
             </div>
           </div>
-        </form>
 
-        {/* DNS Instructions & Live Verifier */}
-        {customDomain && (
-          <div className="space-y-4 pt-4 border-t border-border/50">
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">DNS Record Configuration</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              {/* CNAME Instruction */}
-              <div className="p-4 rounded-xl border border-border bg-card/40 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-foreground">CNAME Record</span>
-                  <button
-                    onClick={() => copyToClipboard('cname.devvolio.in', 'CNAME')}
-                    className="p-1 rounded hover:bg-muted text-muted-foreground"
-                  >
-                    {copiedField === 'CNAME' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-                <div className="text-[11px] text-muted-foreground space-y-1 font-mono">
-                  <p>Type: <span className="text-foreground font-bold">CNAME</span></p>
-                  <p>Host/Name: <span className="text-foreground font-bold">@ or www</span></p>
-                  <p>Target/Value: <span className="text-primary font-bold">cname.devvolio.in</span></p>
-                </div>
+          {/* Skeleton DNS Card Previews */}
+          <div className="space-y-3 pt-4 border-t border-border/40">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">DNS Verification Preview</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl border border-border/40 bg-card/20 space-y-2 animate-pulse">
+                <div className="h-3 w-28 bg-muted/60 rounded" />
+                <div className="h-2.5 w-40 bg-muted/40 rounded" />
+                <div className="h-2.5 w-36 bg-muted/40 rounded" />
               </div>
-
-              {/* TXT Verification Record */}
-              <div className="p-4 rounded-xl border border-border bg-card/40 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-foreground">TXT Verification Record</span>
-                  <button
-                    onClick={() => copyToClipboard(`devvolio-verify-${customDomain}`, 'TXT')}
-                    className="p-1 rounded hover:bg-muted text-muted-foreground"
-                  >
-                    {copiedField === 'TXT' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-                <div className="text-[11px] text-muted-foreground space-y-1 font-mono">
-                  <p>Type: <span className="text-foreground font-bold">TXT</span></p>
-                  <p>Host: <span className="text-foreground font-bold">_devvolio-verify.{customDomain}</span></p>
-                  <p>Value: <span className="text-primary font-bold">devvolio-verify-{customDomain}</span></p>
-                </div>
+              <div className="p-4 rounded-xl border border-border/40 bg-card/20 space-y-2 animate-pulse">
+                <div className="h-3 w-32 bg-muted/60 rounded" />
+                <div className="h-2.5 w-44 bg-muted/40 rounded" />
+                <div className="h-2.5 w-40 bg-muted/40 rounded" />
               </div>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={handleVerifyDns}
-                disabled={verifying}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-semibold transition-all disabled:opacity-50"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${verifying ? 'animate-spin' : ''}`} />
-                {verifying ? 'Checking DNS Propagation...' : 'Verify DNS Records'}
-              </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
