@@ -64,7 +64,17 @@ export async function sendRegisterOtp(req: Request, res: Response, next: NextFun
     // Dispatch OTP via EmailService
     await EmailService.sendOtpEmail(cleanEmail, otp);
 
-    return sendSuccess(res, { email: cleanEmail }, '6-digit OTP verification code sent to your email.');
+    const responsePayload: Record<string, any> = { email: cleanEmail };
+    // Provide devOtp fallback if in development or if ALLOW_DEV_OTP flag is set or BREVO_API_KEY is missing
+    if (
+      process.env.NODE_ENV !== 'production' ||
+      process.env.ALLOW_DEV_OTP === 'true' ||
+      !process.env.BREVO_API_KEY
+    ) {
+      responsePayload.devOtp = otp;
+    }
+
+    return sendSuccess(res, responsePayload, '6-digit OTP verification code sent to your email.');
   } catch (error) {
     next(error);
   }
