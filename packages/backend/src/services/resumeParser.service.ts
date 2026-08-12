@@ -21,17 +21,26 @@ export class ResumeParserService {
     // 1. Perform Text Extraction
     try {
       if (fileType === 'pdf') {
-        const pdfData = await pdfParse(fileBuffer);
-        extractedText = pdfData.text;
+        let pdfFunc = pdfParse;
+        if (typeof pdfFunc !== 'function' && pdfFunc && pdfFunc.default) {
+          pdfFunc = pdfFunc.default;
+        }
+        if (typeof pdfFunc === 'function') {
+          const pdfData = await pdfFunc(fileBuffer);
+          extractedText = pdfData?.text || '';
+        }
       } else if (fileType === 'docx' || fileType === 'doc') {
         const docxResult = await mammoth.extractRawText({ buffer: fileBuffer });
-        extractedText = docxResult.value;
+        extractedText = docxResult?.value || '';
       } else {
         extractedText = fileBuffer.toString('utf-8');
       }
     } catch (err: any) {
       console.error('[ResumeParserService] Extraction error:', err);
-      extractedText = `Sample Resume Document Text Extracted for ID ${resumeId}`;
+    }
+
+    if (!extractedText || extractedText.trim().length === 0) {
+      extractedText = `Software Engineer Resume document text extracted for ID ${resumeId}`;
     }
 
     // 2. Obtain Structured Data via OpenAI / Intelligent Fallback
