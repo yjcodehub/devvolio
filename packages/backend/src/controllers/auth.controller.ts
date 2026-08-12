@@ -8,10 +8,12 @@ import { sendSuccess } from '../utils/apiResponse';
 import { AppError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth.middleware';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? ('strict' as const) : ('lax' as const),
+  secure: isProduction,
+  sameSite: isProduction ? ('none' as const) : ('lax' as const),
 };
 
 export async function checkSubdomain(req: Request, res: Response, next: NextFunction) {

@@ -26,8 +26,10 @@ app.use(
       if (
         !origin ||
         allowedOrigins.includes(origin) ||
-        origin.endsWith('.lvh.me:3000') ||
+        origin === 'https://devvolio.in' ||
+        origin === 'http://devvolio.in' ||
         origin.endsWith('.devvolio.in') ||
+        origin.endsWith('.lvh.me:3000') ||
         origin.endsWith('.localhost:3000') ||
         origin.endsWith('.vercel.app') ||
         env.NODE_ENV === 'development'
