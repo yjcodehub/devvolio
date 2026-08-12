@@ -235,7 +235,7 @@ export default function SignupPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || 'Registration failed');
 
-      setUser(json.data.user);
+      setUser(json.data.user, json.data.token);
       toast.success(`🎉 Account Created! Welcome to Devvolio, ${name}!`);
       router.replace('/onboarding');
     } catch (err: any) {

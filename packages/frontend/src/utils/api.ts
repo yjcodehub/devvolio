@@ -18,3 +18,18 @@ export function getApiUrl(): string {
   }
   return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 }
+
+/**
+ * Returns HTTP headers pre-configured with Bearer Authorization token if available in localStorage.
+ */
+export function getAuthHeaders(customHeaders?: Record<string, string>): Record<string, string> {
+  const headers: Record<string, string> = { ...customHeaders };
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+  return headers;
+}
+

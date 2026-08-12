@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Upload, Trash, FileText, CheckCircle, Loader2, ExternalLink, RefreshCw, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 import ResumeReviewModal from '@/components/admin/ResumeReviewModal';
 
 interface ResumeItem {
@@ -36,7 +36,7 @@ export default function ResumesAdmin() {
   const fetchResumes = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/resumes`, { credentials: 'include' });
+      const res = await fetch(`${apiUrl}/resumes`, { headers: getAuthHeaders(), credentials: 'include' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to fetch resumes');
       
@@ -71,6 +71,7 @@ export default function ResumesAdmin() {
     try {
       const res = await fetch(`${apiUrl}/resumes/upload`, {
         method: 'POST',
+        headers: getAuthHeaders(),
         body: formData,
         credentials: 'include'
       });
@@ -118,6 +119,7 @@ export default function ResumesAdmin() {
     try {
       const res = await fetch(`${apiUrl}/resumes/parse/${id}`, {
         method: 'POST',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
       const data = await res.json();
@@ -137,7 +139,10 @@ export default function ResumesAdmin() {
 
   const handleReviewExisting = async (id: string) => {
     try {
-      const res = await fetch(`${apiUrl}/resumes/parse-result/${id}`, { credentials: 'include' });
+      const res = await fetch(`${apiUrl}/resumes/parse-result/${id}`, {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'No parsing result found');
 
@@ -153,6 +158,7 @@ export default function ResumesAdmin() {
     try {
       const res = await fetch(`${apiUrl}/resumes/${id}/activate`, {
         method: 'PUT',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
       const data = await res.json();
@@ -171,6 +177,7 @@ export default function ResumesAdmin() {
     try {
       const res = await fetch(`${apiUrl}/resumes/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
       const data = await res.json();

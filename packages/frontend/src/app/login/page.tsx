@@ -36,7 +36,7 @@ export default function LoginPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || 'Login failed');
 
-      setUser(json.data);
+      setUser(json.data, json.data.token);
       toast.success('Welcome back!');
 
       if (json.data.role === 'super_admin' || json.data.email === 'lakshraj2121@gmail.com') {

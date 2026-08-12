@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { FolderKanban, CalendarRange, Wrench, MessageSquareDot, ShieldAlert, FileText } from 'lucide-react';
 import Link from 'next/link';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -20,14 +20,15 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       try {
         const apiUrl = getApiUrl();
+        const authHeaders = getAuthHeaders();
         
         // Fetch all APIs in parallel to load summaries
         const [projRes, expRes, skillRes, msgRes, resumeRes] = await Promise.all([
-          fetch(`${apiUrl}/projects`),
-          fetch(`${apiUrl}/experiences`),
-          fetch(`${apiUrl}/skills`),
-          fetch(`${apiUrl}/messages`, { credentials: 'include' }),
-          fetch(`${apiUrl}/resumes`, { credentials: 'include' })
+          fetch(`${apiUrl}/projects`, { headers: authHeaders, credentials: 'include' }),
+          fetch(`${apiUrl}/experiences`, { headers: authHeaders, credentials: 'include' }),
+          fetch(`${apiUrl}/skills`, { headers: authHeaders, credentials: 'include' }),
+          fetch(`${apiUrl}/messages`, { headers: authHeaders, credentials: 'include' }),
+          fetch(`${apiUrl}/resumes`, { headers: authHeaders, credentials: 'include' })
         ]);
 
         const [projData, expData, skillData, msgData, resumeData] = await Promise.all([

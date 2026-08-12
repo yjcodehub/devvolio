@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 interface AiAssistButtonProps {
   endpoint: string;
@@ -28,7 +28,7 @@ export default function AiAssistButton({
       const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/ai/${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
         credentials: 'include'
       });
