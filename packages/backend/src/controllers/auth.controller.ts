@@ -215,7 +215,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
 
     res.cookie('accessToken', accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 15 * 60 * 1000
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -263,7 +263,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     res.cookie('accessToken', accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 15 * 60 * 1000
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -307,7 +307,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 
     res.cookie('accessToken', newAccessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 15 * 60 * 1000
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     return sendSuccess(res, null, 'Session access token refreshed');
