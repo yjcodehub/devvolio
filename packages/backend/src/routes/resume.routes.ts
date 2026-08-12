@@ -6,7 +6,8 @@ import {
   deleteResume,
   parseResume,
   getParseResult,
-  applyParsedData
+  applyParsedData,
+  uploadAndParseResume
 } from '../controllers/resume.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { upload } from '../middleware/upload.middleware';
@@ -16,6 +17,7 @@ const router = Router();
 // Protected admin resume channels
 router.get('/', authenticate, getResumes);
 router.post('/upload', authenticate, upload.single('file'), uploadResume);
+router.post('/upload-and-parse', authenticate, upload.any(), uploadAndParseResume);
 router.put('/:id/activate', authenticate, activateResume);
 router.delete('/:id', authenticate, deleteResume);
 

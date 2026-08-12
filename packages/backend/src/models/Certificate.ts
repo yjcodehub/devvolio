@@ -1,6 +1,11 @@
 import { Schema, model } from 'mongoose';
 
 const CertificateSchema = new Schema({
+  tenantId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Workspace',
+    index: true
+  },
   name: {
     type: String,
     required: [true, 'Certificate name is required'],
@@ -30,6 +35,7 @@ const CertificateSchema = new Schema({
   }
 }, { timestamps: true });
 
+CertificateSchema.index({ tenantId: 1, order: 1 });
 CertificateSchema.index({ order: 1 });
 
 export const Certificate = model('Certificate', CertificateSchema);

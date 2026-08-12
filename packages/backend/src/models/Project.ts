@@ -1,6 +1,11 @@
 import { Schema, model } from 'mongoose';
 
 const ProjectSchema = new Schema({
+  tenantId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Workspace',
+    index: true
+  },
   title: {
     type: String,
     required: [true, 'Project title is required'],
@@ -9,7 +14,6 @@ const ProjectSchema = new Schema({
   slug: {
     type: String,
     required: [true, 'Project slug is required'],
-    unique: true,
     lowercase: true,
     trim: true
   },
@@ -22,7 +26,7 @@ const ProjectSchema = new Schema({
   },
   thumbnail: {
     type: String,
-    required: [true, 'Project thumbnail image URL is required']
+    default: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80'
   },
   images: [{
     type: String // Additional slideshow / screenshot URLs
@@ -36,14 +40,14 @@ const ProjectSchema = new Schema({
   liveUrl: {
     type: String
   },
-  technologies: [{
-    type: String,
-    required: [true, 'At least one technology tag is required']
-  }],
+  technologies: {
+    type: [String],
+    default: ['Full Stack']
+  },
   category: {
     type: String,
-    required: [true, 'Category is required'],
-    enum: ['Frontend', 'Full Stack', 'SaaS', 'Other']
+    enum: ['Frontend', 'Full Stack', 'SaaS', 'Other'],
+    default: 'Full Stack'
   },
   featured: {
     type: Boolean,
@@ -60,6 +64,7 @@ const ProjectSchema = new Schema({
 }, { timestamps: true });
 
 // Optimize query performance
+ProjectSchema.index({ tenantId: 1, slug: 1 });
 ProjectSchema.index({ category: 1 });
 ProjectSchema.index({ order: 1 });
 
