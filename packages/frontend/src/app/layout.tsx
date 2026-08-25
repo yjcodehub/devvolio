@@ -22,20 +22,24 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'Yashkumar Jais | Senior Frontend Engineer Portfolio',
-  description: 'Explore the professional portfolio and experience timeline of Yashkumar Jais, a Frontend Developer specializing in React, Next.js, and Angular.',
-  metadataBase: new URL('https://yashjais.com'),
+  title: {
+    default: 'Devvolio | Multi-Tenant Developer Portfolio Platform',
+    template: '%s | Devvolio'
+  },
+  description: 'Devvolio is a high-performance multi-tenant developer portfolio platform enabling developers to showcase their projects, skills, and experience with custom subdomains.',
+  metadataBase: new URL('https://devvolio.in'),
   openGraph: {
-    title: 'Yashkumar Jais | Senior Frontend Engineer',
-    description: 'Portfolio showcasing 6+ years of engineering interactive digital products.',
+    title: 'Devvolio | Multi-Tenant Developer Portfolio Platform',
+    description: 'Build, manage, and host your developer portfolio with interactive UI widgets, analytics, and custom domain support.',
+    url: 'https://devvolio.in',
     type: 'website',
     locale: 'en_US',
-    siteName: 'Yashkumar Jais Portfolio',
+    siteName: 'Devvolio Platform',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Yashkumar Jais | Senior Frontend Engineer',
-    description: 'Portfolio showcasing 6+ years of engineering interactive digital products.',
+    title: 'Devvolio | Multi-Tenant Developer Portfolio Platform',
+    description: 'Build, manage, and host your developer portfolio with interactive UI widgets, analytics, and custom domain support.',
   },
 };
 

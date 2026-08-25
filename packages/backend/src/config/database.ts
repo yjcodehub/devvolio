@@ -56,10 +56,25 @@ async function seedDefaultsIfEmpty() {
 
 export async function connectDatabase(): Promise<void> {
   try {
-    await mongoose.connect(env.MONGO_URI);
-    console.log('MongoDB connected successfully to Portfolio DB');
-    // Note: Auto-seeding of single-tenant settings is disabled for Multi-Tenant SaaS.
-    // await seedDefaultsIfEmpty();
+    const targetUri = env.NODE_ENV === 'test' && env.MONGO_URI_TEST ? env.MONGO_URI_TEST : env.MONGO_URI;
+    await mongoose.connect(targetUri);
+    
+    const host = mongoose.connection.host || 'unknown-host';
+    const dbName = mongoose.connection.name || 'unknown-db';
+
+    console.log(`[MongoDB] Connected successfully to Host/Cluster: ${host} | Database: ${dbName}`);
+
+    // Warning guard if development server connects to production cluster0 or devvolio DB
+    const isProductionTarget = host.includes('cluster0') || dbName === 'devvolio';
+    if (env.NODE_ENV === 'development' && isProductionTarget) {
+      console.warn(
+        '\n====================================================================\n' +
+        '[WARNING] Local development server is connected to PRODUCTION target!\n' +
+        `Target Host: ${host} | Database: ${dbName}\n` +
+        'Recommended: Point MONGO_URI in .env to Cluster1 (devvolio_dev)\n' +
+        '====================================================================\n'
+      );
+    }
   } catch (error) {
     console.error('MongoDB connection error:', error);
     process.exit(1);

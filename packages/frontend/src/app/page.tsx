@@ -117,7 +117,7 @@ export default function DevvolioSaasLanding() {
           <div className="space-y-1">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary">Free & Pro SaaS Pricing</span>
             <h3 className="font-display text-xl font-extrabold text-foreground">Start for Free • Upgrade Anytime</h3>
-            <p className="text-xs text-muted-foreground">Free Tier includes 5 projects & subdomain. Pro Tier (₹999/mo) unlocks custom domains & unlimited projects.</p>
+            <p className="text-xs text-muted-foreground">Free Tier includes 5 projects & subdomain. Pro Tier (₹49/mo) unlocks custom domains, unlimited projects & custom templates.</p>
           </div>
 
           <Link
