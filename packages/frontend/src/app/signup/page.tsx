@@ -50,7 +50,6 @@ export default function SignupPage() {
   // Compute live point-wise password criteria
   const passwordCriteria = useMemo(() => {
     const pwd = password;
-    const fullName = name;
 
     const hasLength = pwd.length >= 8 && pwd.length <= 16;
     const hasUpper = /[A-Z]/.test(pwd);
@@ -58,27 +57,12 @@ export default function SignupPage() {
     const hasNumber = /[0-9]/.test(pwd);
     const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
 
-    const sequences = ['123', '234', '345', '456', '567', '678', '789', '987', '876', '765', '654', '543', '432', '321'];
-    const repeats = ['000', '111', '222', '333', '444', '555', '666', '777', '888', '999'];
-    const hasSeqOrRep = sequences.some((seq) => pwd.includes(seq)) || repeats.some((rep) => pwd.includes(rep));
-    const noSequence = pwd ? !hasSeqOrRep : false;
-
-    let hasNamePart = false;
-    if (pwd && fullName.trim()) {
-      const nameParts = fullName.toLowerCase().trim().split(/\s+/);
-      const pwdLower = pwd.toLowerCase();
-      hasNamePart = nameParts.some((part) => part.length >= 3 && pwdLower.includes(part));
-    }
-    const noName = pwd ? !hasNamePart : false;
-
     return [
       { id: 'length', label: '8 to 16 characters long', met: hasLength },
       { id: 'case', label: 'At least 1 uppercase (A-Z) & 1 lowercase (a-z)', met: hasUpper && hasLower },
-      { id: 'symbol', label: 'At least 1 digit (0-9) & 1 special symbol (!@#$...)', met: hasNumber && hasSpecial },
-      { id: 'sequence', label: 'No number sequences (e.g. 123, 987) or repetitions (e.g. 111)', met: noSequence },
-      { id: 'name', label: 'Does not contain your name', met: noName }
+      { id: 'symbol', label: 'At least 1 digit (0-9) & 1 special symbol (!@#$...)', met: hasNumber && hasSpecial }
     ];
-  }, [password, name]);
+  }, [password]);
 
   // Auto-fill subdomain from name if untouched
   useEffect(() => {
@@ -116,7 +100,7 @@ export default function SignupPage() {
   }, [desiredSubdomain, apiUrl]);
 
   // --- Validation Rules ---
-  const validateField = (field: string, val: string, currentName = name, currentPassword = password) => {
+  const validateField = (field: string, val: string, currentPassword = password) => {
     let errorMsg: string | undefined = undefined;
 
     if (field === 'name') {
@@ -159,34 +143,6 @@ export default function SignupPage() {
         errorMsg = 'Must contain at least one number (0-9)';
       } else if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)) {
         errorMsg = 'Must contain at least one special symbol (!@#$%^&*)';
-      } else {
-        // Pattern & Sequence checks (e.g. 123, 987, 999, John@123)
-        const sequences = ['123', '234', '345', '456', '567', '678', '789', '987', '876', '765', '654', '543', '432', '321'];
-        for (const seq of sequences) {
-          if (val.includes(seq)) {
-            errorMsg = `Password cannot contain simple sequences like '${seq}'`;
-            break;
-          }
-        }
-        if (!errorMsg) {
-          const repeats = ['000', '111', '222', '333', '444', '555', '666', '777', '888', '999'];
-          for (const rep of repeats) {
-            if (val.includes(rep)) {
-              errorMsg = `Password cannot contain repeated numbers like '${rep}'`;
-              break;
-            }
-          }
-        }
-        if (!errorMsg && currentName.trim()) {
-          const nameParts = currentName.toLowerCase().trim().split(/\s+/);
-          const pwdLower = val.toLowerCase();
-          for (const part of nameParts) {
-            if (part.length >= 3 && pwdLower.includes(part)) {
-              errorMsg = `Password cannot contain your name ("${part}")`;
-              break;
-            }
-          }
-        }
       }
     }
 
@@ -207,7 +163,7 @@ export default function SignupPage() {
       email: validateField('email', email),
       mobile: validateField('mobile', mobile),
       password: validateField('password', password),
-      confirmPassword: validateField('confirmPassword', confirmPassword, name, password)
+      confirmPassword: validateField('confirmPassword', confirmPassword, password)
     };
 
     // Filter undefined
@@ -452,8 +408,8 @@ export default function SignupPage() {
                     if (touched.password) {
                       setErrors((prev) => ({
                         ...prev,
-                        password: validateField('password', e.target.value, name),
-                        confirmPassword: confirmPassword ? validateField('confirmPassword', confirmPassword, name, e.target.value) : prev.confirmPassword
+                        password: validateField('password', e.target.value),
+                        confirmPassword: confirmPassword ? validateField('confirmPassword', confirmPassword, e.target.value) : prev.confirmPassword
                       }));
                     }
                   }}
@@ -492,7 +448,7 @@ export default function SignupPage() {
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
                     if (touched.confirmPassword) {
-                      setErrors((prev) => ({ ...prev, confirmPassword: validateField('confirmPassword', e.target.value, name, password) }));
+                      setErrors((prev) => ({ ...prev, confirmPassword: validateField('confirmPassword', e.target.value, password) }));
                     }
                   }}
                   placeholder="Confirm password"

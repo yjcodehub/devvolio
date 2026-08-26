@@ -93,23 +93,6 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       return next(new AppError('Password must contain at least one uppercase letter, lowercase letter, number, and special symbol', 400));
     }
 
-    // Check simple sequences or repeated numbers
-    const sequences = ['123', '234', '345', '456', '567', '678', '789', '987', '876', '765', '654', '543', '432', '321', '000', '111', '222', '333', '444', '555', '666', '777', '888', '999'];
-    for (const seq of sequences) {
-      if (password.includes(seq)) {
-        return next(new AppError(`Password cannot contain simple sequences or repeated numbers like '${seq}'`, 400));
-      }
-    }
-
-    // Check password for user's name
-    const nameParts = name.toLowerCase().trim().split(/\s+/);
-    const pwdLower = password.toLowerCase();
-    for (const part of nameParts) {
-      if (part.length >= 3 && pwdLower.includes(part)) {
-        return next(new AppError(`Password cannot contain your name ("${part}")`, 400));
-      }
-    }
-
     // 5. Check if user email exists
     const existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
