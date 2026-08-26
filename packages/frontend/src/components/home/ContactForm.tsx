@@ -11,9 +11,11 @@ interface ContactProps {
     subtitle?: string;
     email?: string;
   };
+  ownerName?: string;
+  ownerEmail?: string;
 }
 
-export default function ContactForm({ config }: ContactProps) {
+export default function ContactForm({ config, ownerName, ownerEmail }: ContactProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -71,7 +73,14 @@ export default function ContactForm({ config }: ContactProps) {
 
   const contactTitle = config?.title || "Let's Collaborate";
   const contactSubtitle = config?.subtitle || "Have an exciting project or role? Send me a message and let's start talking.";
-  const placeholderEmail = config?.email || "lakshraj2121@gmail.com";
+
+  const targetEmail = ownerEmail || config?.email || "alex@example.com";
+  const targetName = ownerName || "Alex Rivera";
+  const firstName = targetName.trim().split(' ')[0] || "there";
+
+  const placeholderName = `e.g. ${targetName}`;
+  const placeholderEmail = targetEmail;
+  const placeholderMessage = `Hi ${firstName}, I saw your portfolio and would love to discuss...`;
 
   return (
     <section id="contact" className="py-24 px-6 max-w-4xl mx-auto w-full">
@@ -100,7 +109,7 @@ export default function ContactForm({ config }: ContactProps) {
                 value={formData.name}
                 onChange={handleChange}
                 disabled={loading}
-                placeholder="Yashkumar Jais"
+                placeholder="eg. Alex Rivera"
                 className="px-4 py-3 rounded-lg border border-border bg-card/50 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-primary/65 transition-colors hover-glow-trigger disabled:opacity-50"
               />
             </div>
@@ -135,7 +144,7 @@ export default function ContactForm({ config }: ContactProps) {
               value={formData.subject}
               onChange={handleChange}
               disabled={loading}
-              placeholder="Opportunity: Senior Frontend Developer"
+              placeholder="Opportunity: Senior Developer Role"
               className="w-full px-4 py-3 rounded-lg border border-border bg-card/50 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-primary/65 transition-colors hover-glow-trigger disabled:opacity-50"
             />
           </div>
@@ -152,7 +161,7 @@ export default function ContactForm({ config }: ContactProps) {
               onChange={handleChange}
               disabled={loading}
               rows={5}
-              placeholder="Hi Yash, I saw your portfolio and would love to discuss..."
+              placeholder={placeholderMessage}
               className="w-full px-4 py-3 rounded-lg border border-border bg-card/50 text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:border-primary/65 transition-colors hover-glow-trigger disabled:opacity-50 resize-y"
             />
           </div>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import { 
   SiReact, SiAngular, SiNextdotjs, SiTypescript, SiJavascript, 
   SiNodedotjs, SiTailwindcss, SiBootstrap, SiMongodb, SiMysql, 
@@ -25,16 +26,11 @@ interface SkillsMarqueeProps {
   skills?: SkillItem[];
 }
 
-const defaultSkills: SkillItem[] = [
-  { name: 'Angular', category: 'Frameworks & Libraries', proficiency: 90, icon: 'SiAngular' },
-  { name: 'React.js', category: 'Frameworks & Libraries', proficiency: 85, icon: 'SiReact' },
-  { name: 'Next.js', category: 'Frameworks & Libraries', proficiency: 80, icon: 'SiNextdotjs' },
-  { name: 'JavaScript', category: 'Languages', proficiency: 92, icon: 'SiJavascript' },
-  { name: 'TypeScript', category: 'Languages', proficiency: 88, icon: 'SiTypescript' },
-  { name: 'HTML5 & CSS3', category: 'Languages', proficiency: 95, icon: 'SiHtml5' },
-  { name: 'Cursor AI', category: 'AI Tools & Databases', proficiency: 90, icon: 'SiOpenai' },
-  { name: 'MongoDB', category: 'AI Tools & Databases', proficiency: 72, icon: 'SiMongodb' },
-  { name: 'REST APIs', category: 'AI Tools & Databases', proficiency: 90, icon: 'SiPostman' }
+const sampleSkills: SkillItem[] = [
+  { name: 'React.js (Sample)', category: 'Frameworks & Libraries', proficiency: 90, icon: 'SiReact' },
+  { name: 'TypeScript (Sample)', category: 'Languages', proficiency: 85, icon: 'SiTypescript' },
+  { name: 'Node.js (Sample)', category: 'Backend & Databases', proficiency: 80, icon: 'SiNodedotjs' },
+  { name: 'Tailwind CSS (Sample)', category: 'Frameworks & Libraries', proficiency: 95, icon: 'SiTailwindcss' }
 ];
 
 const getSkillIcon = (iconName?: string) => {
@@ -80,7 +76,8 @@ const getSkillIcon = (iconName?: string) => {
 };
 
 export default function SkillsMarquee({ skills }: SkillsMarqueeProps) {
-  const activeSkills = skills && skills.length > 0 ? skills : defaultSkills;
+  const hasUserSkills = skills && skills.length > 0;
+  const activeSkills = hasUserSkills ? skills : sampleSkills;
 
   // Duplicate items for infinite rolling marquee effect
   const marqueeItems = [...activeSkills, ...activeSkills, ...activeSkills];
@@ -96,13 +93,22 @@ export default function SkillsMarquee({ skills }: SkillsMarqueeProps) {
 
   return (
     <section id="skills" className="py-24 w-full overflow-hidden bg-card/5 border-y border-border/40">
-      <div className="max-w-6xl mx-auto px-6 mb-16 text-center md:text-left">
+      <div className="max-w-6xl mx-auto px-6 mb-12 text-center md:text-left">
         <h2 className="font-display text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
           Technical Arsenal
         </h2>
-        <p className="font-sans text-base text-muted-foreground max-w-xl leading-relaxed">
+        <p className="font-sans text-base text-muted-foreground max-w-xl leading-relaxed mb-6">
           Languages, frameworks, and tools I use to bring modern applications to life.
         </p>
+
+        {!hasUserSkills && (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-primary/30 bg-primary/10 text-xs text-foreground font-medium shadow-sm">
+            <Sparkles className="w-4 h-4 text-primary flex-shrink-0" />
+            <span>
+              <strong className="text-primary font-bold">Sample View:</strong> Add your skills and proficiency levels in the Admin Panel to showcase your tech stack.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Infinite Horizontal Rolling Marquee using Framer Motion */}
