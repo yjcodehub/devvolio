@@ -15,38 +15,10 @@ import {
 
 async function seedDefaultsIfEmpty() {
   try {
-    // Check Settings
-    const settingsCount = await Settings.countDocuments();
-    if (settingsCount === 0) {
-      console.log('[Auto-Seed] Settings collection is empty. Seeding defaults...');
-      await Settings.create(initialSettings);
-    }
-
-    // Check Experience
-    const expCount = await Experience.countDocuments();
-    if (expCount === 0) {
-      console.log('[Auto-Seed] Experience collection is empty. Seeding defaults...');
-      await Experience.insertMany(initialExperiences);
-    }
-
-    // Check Project
-    const projectCount = await Project.countDocuments();
-    if (projectCount === 0) {
-      console.log('[Auto-Seed] Project collection is empty. Seeding defaults...');
-      await Project.insertMany(initialProjects);
-    }
-
-    // Check Skill
-    const skillCount = await Skill.countDocuments();
-    if (skillCount === 0) {
-      console.log('[Auto-Seed] Skill collection is empty. Seeding defaults...');
-      await Skill.insertMany(initialSkills);
-    }
-
-    // Check Admin user
+    // Check SuperAdmin user
     const userCount = await User.countDocuments();
     if (userCount === 0) {
-      console.log('[Auto-Seed] User collection is empty. Seeding default admin user...');
+      console.log('[Auto-Seed] User collection is empty. Seeding default SuperAdmin user...');
       await User.create(defaultAdmin);
     }
   } catch (err) {

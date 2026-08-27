@@ -32,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, clearAuth } = useAuthStore();
 
   const isLoginPage = pathname === '/admin';
-  const isSuperAdmin = user?.role === 'super_admin' || user?.email === 'lakshraj2121@gmail.com';
+  const isSuperAdmin = user?.role === 'super_admin' || user?.role === 'superAdmin' || user?.email === 'yash@devvolio.in';
 
   const handleLogout = async () => {
     try {

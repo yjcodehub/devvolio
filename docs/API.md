@@ -81,7 +81,7 @@ All public GET routes have high-performance caching (SSG/ISR revalidation webhoo
 **Request Payload**:
 ```json
 {
-  "email": "lakshraj2121@gmail.com",
+  "email": "yash@devvolio.in",
   "password": "SecurePassword123!"
 }
 ```
@@ -94,7 +94,7 @@ All public GET routes have high-performance caching (SSG/ISR revalidation webhoo
   "user": {
     "id": "60d0fe4f5311236168a109ca",
     "username": "yjcodehub",
-    "email": "lakshraj2121@gmail.com",
+    "email": "yash@devvolio.in",
     "role": "admin"
   }
 }

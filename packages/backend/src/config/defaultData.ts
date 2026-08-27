@@ -1,8 +1,8 @@
 export const defaultAdmin = {
   username: 'yjcodehub',
-  email: 'lakshraj2121@gmail.com',
-  password: 'Adminyash@1234', // Default password (hashed in Mongoose pre-save hook)
-  role: 'admin'
+  email: 'yash@devvolio.in',
+  password: 'Devvolio123$', // Default password (hashed in Mongoose pre-save hook)
+  role: 'superAdmin'
 };
 
 export const initialSettings = {

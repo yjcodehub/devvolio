@@ -205,7 +205,7 @@ Upon backend startup, the database seeding script registers the initial develope
   "socialLinks": {
     "github": "https://github.com/yjcodehub",
     "linkedin": "https://www.linkedin.com/in/yashjais97",
-    "email": "lakshraj2121@gmail.com"
+    "email": "yash@devvolio.in"
   },
   "seo": {
     "metaTitle": "Yashkumar Jais | Senior Frontend Engineer Portfolio",

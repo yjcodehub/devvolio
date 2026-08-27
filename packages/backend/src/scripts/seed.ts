@@ -40,83 +40,19 @@ async function seed() {
   await Experience.deleteMany({});
   await Skill.deleteMany({});
 
-  // Seed default admin user
-  console.log('[Seeder] Creating admin user session credentials...');
+  // Seed default SuperAdmin user (No tenant workspace or portfolio assigned)
+  console.log('[Seeder] Creating SuperAdmin user session credentials...');
   const admin = new User({
     ...defaultAdmin,
-    role: 'super_admin',
-    isEmailVerified: true
+    role: defaultAdmin.role || 'superAdmin',
+    isEmailVerified: true,
+    workspaces: [],
+    activeWorkspaceId: undefined
   });
   await admin.save();
-  console.log(`[Seeder] Admin user seeded with email: ${admin.email}`);
+  console.log(`[Seeder] SuperAdmin user seeded with email: ${admin.email}`);
   console.log(`[Seeder] DEFAULT PASSWORD: ${defaultAdmin.password}`);
-
-  // Seed workspace
-  console.log('[Seeder] Establishing default Workspace (tenant)...');
-  const workspace = new Workspace({
-    name: 'Yash Workspace',
-    slug: 'yash',
-    owner: admin._id,
-    status: 'active'
-  });
-  await workspace.save();
-
-  admin.workspaces = [workspace._id as any];
-  admin.activeWorkspaceId = workspace._id as any;
-  await admin.save();
-
-  // Seed site settings / Portfolio
-  console.log('[Seeder] Inserting Portfolio configuration...');
-  const portfolio = new Portfolio({
-    ...initialSettings,
-    tenantId: workspace._id,
-    isPublished: true,
-    createdBy: admin._id,
-    updatedBy: admin._id
-  });
-  await portfolio.save();
-
-  // Seed experiences with tenant context
-  if (initialExperiences.length > 0) {
-    console.log('[Seeder] Seeding timeline experiences...');
-    const experiences = initialExperiences.map((exp) => ({
-      ...exp,
-      tenantId: workspace._id,
-      createdBy: admin._id,
-      updatedBy: admin._id
-    }));
-    await Experience.insertMany(experiences);
-  } else {
-    console.log('[Seeder] Skipping timeline experiences (empty initial setup).');
-  }
-
-  // Seed projects with tenant context
-  if (initialProjects.length > 0) {
-    console.log('[Seeder] Seeding portfolio projects...');
-    const projects = initialProjects.map((proj) => ({
-      ...proj,
-      tenantId: workspace._id,
-      createdBy: admin._id,
-      updatedBy: admin._id
-    }));
-    await Project.insertMany(projects);
-  } else {
-    console.log('[Seeder] Skipping portfolio projects (empty initial setup).');
-  }
-
-  // Seed skills with tenant context
-  if (initialSkills.length > 0) {
-    console.log('[Seeder] Seeding skill tags...');
-    const skills = initialSkills.map((sk) => ({
-      ...sk,
-      tenantId: workspace._id,
-      createdBy: admin._id,
-      updatedBy: admin._id
-    }));
-    await Skill.insertMany(skills);
-  } else {
-    console.log('[Seeder] Skipping skill tags (empty initial setup).');
-  }
+  console.log('[Seeder] SuperAdmin has no workspace/portfolio. Workspaces & Portfolios are provisioned on user registration.');
 
   console.log(`[Seeder] Database "${dbName}" on Cluster1 successfully seeded! 🎉`);
 }

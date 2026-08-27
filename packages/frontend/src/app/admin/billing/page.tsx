@@ -136,7 +136,7 @@ export default function BillingAdmin() {
         },
         prefill: {
           name: 'Developer Workspace Owner',
-          email: 'lakshraj2121@gmail.com'
+          email: 'yash@devvolio.in'
         },
         theme: {
           color: '#6d5dfc'

@@ -1,21 +1,36 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { Message } from '../models/Message';
+import { Workspace } from '@devvolio/shared';
 import { sendSuccess } from '../utils/apiResponse';
 import { AppError } from '../middleware/errorHandler';
+import { AuthRequest } from '../middleware/auth.middleware';
+import { getTenantIdFromRequest } from '../utils/tenantHelper';
+import { Types } from 'mongoose';
 
-export async function createMessage(req: Request, res: Response, next: NextFunction) {
+export async function createMessage(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message, tenantId, slug } = req.body;
 
     if (!name || !email || !subject || !message) {
       return next(new AppError('All message fields (name, email, subject, message) are required', 400));
+    }
+
+    let resolvedTenantId: Types.ObjectId | null = null;
+    if (tenantId && Types.ObjectId.isValid(tenantId)) {
+      resolvedTenantId = new Types.ObjectId(tenantId);
+    } else if (slug) {
+      const ws = await Workspace.findOne({ slug: slug.toLowerCase() });
+      if (ws) resolvedTenantId = ws._id as Types.ObjectId;
+    } else {
+      resolvedTenantId = await getTenantIdFromRequest(req);
     }
 
     const newMessage = new Message({
       name,
       email,
       subject,
-      message
+      message,
+      tenantId: resolvedTenantId || undefined
     });
 
     await newMessage.save();
@@ -25,20 +40,28 @@ export async function createMessage(req: Request, res: Response, next: NextFunct
   }
 }
 
-export async function getMessages(req: Request, res: Response, next: NextFunction) {
+export async function getMessages(req: AuthRequest, res: Response, next: NextFunction) {
   try {
+    const tenantId = await getTenantIdFromRequest(req);
+    const filter: any = {};
+    if (tenantId) filter.tenantId = tenantId;
+
     // Sort by most recent first
-    const list = await Message.find({}).sort({ createdAt: -1 });
+    const list = await Message.find(filter).sort({ createdAt: -1 });
     return sendSuccess(res, list, 'Messages inbox list retrieved successfully');
   } catch (error) {
     next(error);
   }
 }
 
-export async function toggleMessageRead(req: Request, res: Response, next: NextFunction) {
+export async function toggleMessageRead(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const messageItem = await Message.findById(id);
+    const tenantId = await getTenantIdFromRequest(req);
+    const filter: any = { _id: id };
+    if (tenantId) filter.tenantId = tenantId;
+
+    const messageItem = await Message.findOne(filter);
 
     if (!messageItem) {
       return next(new AppError('Message not found', 404));
@@ -54,10 +77,14 @@ export async function toggleMessageRead(req: Request, res: Response, next: NextF
   }
 }
 
-export async function deleteMessage(req: Request, res: Response, next: NextFunction) {
+export async function deleteMessage(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const msg = await Message.findByIdAndDelete(id);
+    const tenantId = await getTenantIdFromRequest(req);
+    const filter: any = { _id: id };
+    if (tenantId) filter.tenantId = tenantId;
+
+    const msg = await Message.findOneAndDelete(filter);
 
     if (!msg) {
       return next(new AppError('Message not found', 404));

@@ -745,7 +745,7 @@ export default function SettingsManager() {
                     id="contactEmail"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
-                    placeholder="e.g. lakshraj2121@gmail.com"
+                    placeholder="e.g. yash@devvolio.in"
                     className="w-full px-4 py-2.5 rounded-lg border border-border bg-card/60 text-sm text-foreground focus:outline-none focus:border-primary/65 transition-colors"
                   />
                 </div>

@@ -146,6 +146,10 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     });
     await workspace.save();
 
+    user.workspaces = [workspace._id as any];
+    user.activeWorkspaceId = workspace._id as any;
+    await user.save();
+
     // 6. Initialize Portfolio
     const portfolio = new Portfolio({
       tenantId: workspace._id,

@@ -33,6 +33,10 @@ export default function AdminGuard({ children }: AdminGuardProps) {
         const json = await res.json();
         if (json.success) {
           setUser(json.data);
+          if (json.data.role === 'super_admin' || json.data.role === 'superAdmin' || json.data.email === 'yash@devvolio.in') {
+            router.replace('/superadmin');
+            return;
+          }
         } else {
           throw new Error('Verification failed');
         }

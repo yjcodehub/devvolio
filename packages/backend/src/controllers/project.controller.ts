@@ -1,8 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { Project } from '../models/Project';
 import { sendSuccess } from '../utils/apiResponse';
 import { AppError } from '../middleware/errorHandler';
 import { invalidatePortfolioCache } from '../routes/index';
+import { AuthRequest } from '../middleware/auth.middleware';
+import { getTenantIdFromRequest } from '../utils/tenantHelper';
 
 // Helper to generate unique sluggified title
 function sluggify(title: string): string {
@@ -14,12 +16,15 @@ function sluggify(title: string): string {
     .replace(/-+/g, '-');             // remove multiple hyphens
 }
 
-let cachedProjectsList: any = null;
-
-export async function getProjects(req: Request, res: Response, next: NextFunction) {
+export async function getProjects(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { category, search } = req.query;
+    const tenantId = await getTenantIdFromRequest(req);
     const filterQuery: any = {};
+
+    if (tenantId) {
+      filterQuery.tenantId = tenantId;
+    }
 
     if (category) {
       filterQuery.category = category;
@@ -34,16 +39,7 @@ export async function getProjects(req: Request, res: Response, next: NextFunctio
       ];
     }
 
-    // Use cache only if there are no search or category filters
-    if (!category && !search && cachedProjectsList) {
-      return sendSuccess(res, cachedProjectsList, 'Projects list retrieved successfully');
-    }
-
-    const projects = await Project.find(filterQuery).sort({ order: 1 });
-
-    if (!category && !search) {
-      cachedProjectsList = projects;
-    }
+    const projects = await Project.find(filterQuery).sort({ displayOrder: 1, createdAt: -1 });
 
     return sendSuccess(res, projects, 'Projects list retrieved successfully');
   } catch (error) {
@@ -51,10 +47,14 @@ export async function getProjects(req: Request, res: Response, next: NextFunctio
   }
 }
 
-export async function getProjectBySlug(req: Request, res: Response, next: NextFunction) {
+export async function getProjectBySlug(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { slug } = req.params;
-    const project = await Project.findOne({ slug });
+    const tenantId = await getTenantIdFromRequest(req);
+    const filter: any = { slug };
+    if (tenantId) filter.tenantId = tenantId;
+
+    const project = await Project.findOne(filter);
 
     if (!project) {
       return next(new AppError('Project not found matching slug parameter', 404));
@@ -66,9 +66,10 @@ export async function getProjectBySlug(req: Request, res: Response, next: NextFu
   }
 }
 
-export async function createProject(req: Request, res: Response, next: NextFunction) {
+export async function createProject(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { title, description, detailedBody, thumbnail, images, videoUrl, githubUrl, liveUrl, technologies, category, featured, order } = req.body;
+    const tenantId = await getTenantIdFromRequest(req);
 
     if (!title || !description || !thumbnail || !technologies || !category) {
       return next(new AppError('Missing required project fields (title, description, thumbnail, technologies, category)', 400));
@@ -76,8 +77,10 @@ export async function createProject(req: Request, res: Response, next: NextFunct
 
     const slug = sluggify(title);
     
-    // Check slug uniqueness
-    const existing = await Project.findOne({ slug });
+    // Check slug uniqueness within workspace
+    const existingFilter: any = { slug };
+    if (tenantId) existingFilter.tenantId = tenantId;
+    const existing = await Project.findOne(existingFilter);
     if (existing) {
       return next(new AppError('A project with a similar title/slug already exists', 400));
     }
@@ -95,11 +98,13 @@ export async function createProject(req: Request, res: Response, next: NextFunct
       technologies,
       category,
       featured,
-      order
+      order,
+      tenantId: tenantId || undefined,
+      createdBy: req.user?.userId || undefined,
+      updatedBy: req.user?.userId || undefined
     });
 
     await project.save();
-    cachedProjectsList = null; // Invalidate cache
     invalidatePortfolioCache(); // Invalidate aggregated route cache
     return sendSuccess(res, project, 'Project created successfully', 201);
   } catch (error) {
@@ -107,12 +112,15 @@ export async function createProject(req: Request, res: Response, next: NextFunct
   }
 }
 
-export async function updateProject(req: Request, res: Response, next: NextFunction) {
+export async function updateProject(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
     const updateData = { ...req.body };
+    const tenantId = await getTenantIdFromRequest(req);
+    const filter: any = { _id: id };
+    if (tenantId) filter.tenantId = tenantId;
 
-    const project = await Project.findById(id);
+    const project = await Project.findOne(filter);
     if (!project) {
       return next(new AppError('Project not found', 404));
     }
@@ -120,16 +128,21 @@ export async function updateProject(req: Request, res: Response, next: NextFunct
     // Regenerate slug if title is updated
     if (updateData.title && updateData.title !== project.title) {
       const newSlug = sluggify(updateData.title);
-      const existing = await Project.findOne({ slug: newSlug, _id: { $ne: id } });
+      const existingFilter: any = { slug: newSlug, _id: { $ne: id } };
+      if (tenantId) existingFilter.tenantId = tenantId;
+      const existing = await Project.findOne(existingFilter);
       if (existing) {
         return next(new AppError('A project with a similar title/slug already exists', 400));
       }
       updateData.slug = newSlug;
     }
 
+    if (req.user?.userId) {
+      updateData.updatedBy = req.user.userId;
+    }
+
     Object.assign(project, updateData);
     await project.save();
-    cachedProjectsList = null; // Invalidate cache
     invalidatePortfolioCache(); // Invalidate aggregated route cache
 
     return sendSuccess(res, project, 'Project updated successfully');
@@ -138,16 +151,19 @@ export async function updateProject(req: Request, res: Response, next: NextFunct
   }
 }
 
-export async function deleteProject(req: Request, res: Response, next: NextFunction) {
+export async function deleteProject(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
-    const project = await Project.findByIdAndDelete(id);
+    const tenantId = await getTenantIdFromRequest(req);
+    const filter: any = { _id: id };
+    if (tenantId) filter.tenantId = tenantId;
+
+    const project = await Project.findOneAndDelete(filter);
 
     if (!project) {
       return next(new AppError('Project not found', 404));
     }
 
-    cachedProjectsList = null; // Invalidate cache
     invalidatePortfolioCache(); // Invalidate aggregated route cache
     return sendSuccess(res, null, 'Project deleted successfully');
   } catch (error) {

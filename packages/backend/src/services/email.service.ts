@@ -23,7 +23,7 @@ export class EmailService {
 
     try {
       const apiKey = process.env.BREVO_API_KEY?.trim();
-      const senderEmail = process.env.BREVO_SENDER_EMAIL?.trim() || 'lakshraj2121@gmail.com';
+      const senderEmail = process.env.BREVO_SENDER_EMAIL?.trim() || 'yash@devvolio.in';
       const senderName = process.env.BREVO_SENDER_NAME?.trim() || 'Devvolio SaaS';
 
       if (apiKey) {

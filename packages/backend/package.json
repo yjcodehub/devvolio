@@ -9,7 +9,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "seed": "tsx src/scripts/seed.ts",
-    "seed:prod": "node dist/scripts/seed.js"
+    "seed:prod": "node dist/scripts/seed.js",
+    "clear-db": "tsx src/scripts/clearDatabase.ts"
   },
   "dependencies": {
     "@devvolio/shared": "*",

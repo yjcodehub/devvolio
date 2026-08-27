@@ -39,7 +39,7 @@ export default function LoginPage() {
       setUser(json.data, json.data.token);
       toast.success('Welcome back!');
 
-      if (json.data.role === 'super_admin' || json.data.email === 'lakshraj2121@gmail.com') {
+      if (json.data.role === 'super_admin' || json.data.role === 'superAdmin' || json.data.email === 'yash@devvolio.in') {
         router.replace('/superadmin');
       } else {
         router.replace('/admin/dashboard');
