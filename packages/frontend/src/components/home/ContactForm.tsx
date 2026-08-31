@@ -13,9 +13,11 @@ interface ContactProps {
   };
   ownerName?: string;
   ownerEmail?: string;
+  tenantId?: string;
+  slug?: string;
 }
 
-export default function ContactForm({ config, ownerName, ownerEmail }: ContactProps) {
+export default function ContactForm({ config, ownerName, ownerEmail, tenantId, slug }: ContactProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -47,10 +49,18 @@ export default function ContactForm({ config, ownerName, ownerEmail }: ContactPr
     setLoading(true);
     const apiPromise = async () => {
       const apiUrl = getApiUrl();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (tenantId) headers['x-tenant-id'] = tenantId;
+      if (slug) headers['x-tenant-slug'] = slug;
+
       const res = await fetch(`${apiUrl}/messages`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        headers,
+        body: JSON.stringify({
+          ...formData,
+          tenantId,
+          slug
+        })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'API error');

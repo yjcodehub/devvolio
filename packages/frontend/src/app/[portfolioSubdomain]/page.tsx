@@ -153,7 +153,13 @@ export default function TenantPortfolioPage({ params }: PortfolioPageProps) {
 
       {/* 7. Contact Form */}
       {isVisible('contact') && (
-        <ContactForm config={contactData} ownerName={ownerName} ownerEmail={ownerEmail} />
+        <ContactForm 
+          config={contactData} 
+          ownerName={ownerName} 
+          ownerEmail={ownerEmail}
+          tenantId={portfolio?.tenantId || (data?.workspace as any)?._id}
+          slug={subdomain}
+        />
       )}
     </div>
   );

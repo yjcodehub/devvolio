@@ -1,6 +1,12 @@
 import { Schema, model } from 'mongoose';
 
 const MessageSchema = new Schema({
+  tenantId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Workspace',
+    required: false,
+    index: true
+  },
   name: {
     type: String,
     required: [true, 'Sender name is required'],
@@ -29,6 +35,7 @@ const MessageSchema = new Schema({
   }
 }, { timestamps: true });
 
+MessageSchema.index({ tenantId: 1, createdAt: -1 });
 MessageSchema.index({ createdAt: -1 });
 
 export const Message = model('Message', MessageSchema);
