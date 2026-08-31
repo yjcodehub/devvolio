@@ -32,7 +32,7 @@ FRONTEND_URL=http://localhost:3000
 
 # Default administrator credentials for database seeding
 PORTFOLIO_ADMIN_EMAIL=yash@devvolio.in
-PORTFOLIO_ADMIN_PASSWORD=Devvolio123$
+PORTFOLIO_ADMIN_PASSWORD=SecuredPassword123$#@
 ```
 
 **Frontend (`/frontend/.env`):**

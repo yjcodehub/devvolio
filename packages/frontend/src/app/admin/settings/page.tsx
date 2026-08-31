@@ -328,7 +328,7 @@ export default function SettingsManager() {
                       id="heroSubtitle"
                       value={heroSubtitle}
                       onChange={(e) => setHeroSubtitle(e.target.value)}
-                      placeholder="e.g. Frontend & POS Software Architect"
+                      placeholder="e.g. Full Stack Engineer & Cloud Architect"
                       className="w-full px-4 py-2.5 rounded-lg border border-border bg-card/60 text-sm text-foreground focus:outline-none focus:border-primary/65 transition-colors"
                     />
                   </div>
@@ -342,7 +342,7 @@ export default function SettingsManager() {
                       id="heroTitle"
                       value={heroTitle}
                       onChange={(e) => setHeroTitle(e.target.value)}
-                      placeholder="e.g. Engineering Premium Digital Experiences."
+                      placeholder="e.g. Building Scalable Web Solutions & Developer Tools"
                       className="w-full px-4 py-2.5 rounded-lg border border-border bg-card/60 text-sm text-foreground focus:outline-none focus:border-primary/65 transition-colors"
                     />
                   </div>
@@ -356,7 +356,7 @@ export default function SettingsManager() {
                     id="heroTagline"
                     value={heroTagline}
                     onChange={(e) => setHeroTagline(e.target.value)}
-                    placeholder="I build high-performance POS platforms..."
+                    placeholder="Crafting high-performance web applications, scalable digital solutions, and developer tools..."
                     rows={3}
                     className="w-full px-4 py-2.5 rounded-lg border border-border bg-card/60 text-sm text-foreground focus:outline-none focus:border-primary/65 transition-colors resize-none"
                   />
@@ -460,7 +460,7 @@ export default function SettingsManager() {
                     id="aboutBio"
                     value={aboutBio}
                     onChange={(e) => setAboutBio(e.target.value)}
-                    placeholder="6+ years of engineering operational software..."
+                    placeholder="Passionate full-stack developer crafting high-performance digital experiences and scalable web applications..."
                     rows={4}
                     className="w-full px-4 py-2.5 rounded-lg border border-border bg-card/60 text-sm text-foreground focus:outline-none focus:border-primary/65 transition-colors resize-none"
                   />
@@ -532,7 +532,7 @@ export default function SettingsManager() {
                               type="text"
                               value={exp.title}
                               onChange={(e) => updateExpertise(idx, 'title', e.target.value)}
-                              placeholder="e.g. POS & Restaurant Tech"
+                              placeholder="e.g. Full Stack Engineering"
                               className="w-full px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground focus:outline-none focus:border-primary/65 font-bold"
                             />
                           </div>
@@ -545,7 +545,7 @@ export default function SettingsManager() {
                           <textarea
                             value={exp.desc}
                             onChange={(e) => updateExpertise(idx, 'desc', e.target.value)}
-                            placeholder="e.g. Deep specialization in restaurant billing systems..."
+                            placeholder="e.g. Deep specialization in scalable web architectures, modern frontend design systems, and robust APIs..."
                             rows={3}
                             className="w-full px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground focus:outline-none focus:border-primary/65 resize-none"
                           />
@@ -696,7 +696,7 @@ export default function SettingsManager() {
                       id="spotifyTrackArtist"
                       value={spotifyTrackArtist}
                       onChange={(e) => setSpotifyTrackArtist(e.target.value)}
-                      placeholder="e.g. Yash Jais Studio Mix"
+                      placeholder="e.g. Devvolio Ambient Studio Mix"
                       className="w-full px-4 py-2.5 rounded-lg border border-border bg-card/60 text-sm text-foreground focus:outline-none"
                     />
                   </div>
@@ -747,7 +747,7 @@ export default function SettingsManager() {
                     id="contactEmail"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
-                    placeholder="e.g. yash@devvolio.in"
+                    placeholder="e.g. contact@devvolio.in"
                     className="w-full px-4 py-2.5 rounded-lg border border-border bg-card/60 text-sm text-foreground focus:outline-none focus:border-primary/65 transition-colors"
                   />
                 </div>

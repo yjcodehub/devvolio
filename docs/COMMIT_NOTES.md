@@ -101,5 +101,26 @@ This document contains structured, point-wise commit and release notes for repos
 - **Dynamic Registration Portfolios**: Updated [auth.controller.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/controllers/auth.controller.ts) during user signup to initialize `hero.terminalSequence` with the user's registered workspace slug (`${uniqueSlug} --role --skills`) so every new user (e.g. Vidhi) gets their own initial terminal sequence rather than falling back to personal text.
 - **Updated Settings Placeholders & Seeder Config**: Updated [defaultData.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/config/defaultData.ts), [Hero.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/components/home/Hero.tsx), and [settings/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/settings/page.tsx) to match the standard Devvolio developer branding.
 
+---
 
+## 📌 Commit Summary — 2026-08-31 (Devvolio Form Placeholders & Generic Showcase Polish)
 
+### 🗂️ Project Modal Form Placeholders (`packages/frontend/src/app/admin/projects/page.tsx`)
+- **Devvolio Rebranding**: Replaced legacy and personal placeholder values in [projects/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/projects/page.tsx) modal popup:
+  - Title: `FitPulse Pro` ➔ `Devvolio Platform`
+  - Summary: `Mobile-first BMI tracking...` ➔ `Developer portfolio SaaS & multi-tenant workspace management platform...`
+  - Case Study Outline: `# Case Study Outline...` ➔ `# Devvolio Case Study...`
+  - Tech Stack: `Next.js, Tailwind CSS, Node.js` ➔ `React, Next.js, TypeScript, Node.js, Tailwind CSS`
+  - URLs & Media: Cloudinary, GitHub repo (`https://github.com/devvolio/devvolio-core`), and Live URL (`https://devvolio.in`).
+
+### ⏳ Experience & Timeline Modal Form Placeholders (`packages/frontend/src/app/admin/experience/page.tsx`)
+- **Devvolio Rebranding**: Replaced company and work experience placeholders in [experience/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/experience/page.tsx) modal popup:
+  - Role: `Software Engineer` ➔ `Senior Full Stack Engineer`
+  - Company: `Relfor Labs Pvt Ltd` ➔ `Devvolio Technologies Inc.`
+  - Location: `Pune, India` ➔ `Bengaluru, India (or Remote)`
+  - Summary & Highlights: Replaced POS system billing highlights with multi-tenant developer workspace platform and high-throughput API bullet points.
+  - Skills Used: `React, TypeScript, CSS` ➔ `TypeScript, React, Next.js, Node.js, Express, MongoDB, Tailwind CSS`.
+
+### ⚙️ Settings & Home Expertise Polish (`packages/frontend/src`)
+- **Settings Placeholders**: Updated [settings/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/settings/page.tsx) hero subtitle, hero title, tagline, bio, expertise, and contact email placeholders to modern Devvolio standards.
+- **Home About Fallbacks**: Replaced legacy `defaultExpertises` entries in [About.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/components/home/About.tsx) with clean, developer-centric specialties (Frontend Engineering, Backend Systems & APIs, Full Stack Solutions, Web Performance & DevOps).

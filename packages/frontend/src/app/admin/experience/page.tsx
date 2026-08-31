@@ -273,7 +273,7 @@ export default function ExperienceManager() {
                     type="text"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    placeholder="Software Engineer"
+                    placeholder="Senior Full Stack Engineer"
                     className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                     required
                   />
@@ -286,7 +286,7 @@ export default function ExperienceManager() {
                     type="text"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
-                    placeholder="Relfor Labs Pvt Ltd"
+                    placeholder="Devvolio Technologies Inc."
                     className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                     required
                   />
@@ -314,7 +314,7 @@ export default function ExperienceManager() {
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Pune, India"
+                    placeholder="Bengaluru, India (or Remote)"
                     className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                   />
                 </div>
@@ -367,7 +367,7 @@ export default function ExperienceManager() {
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="General summary of the role..."
+                  placeholder="Architecting core developer portfolio features, multi-tenant subdomains, and API infrastructure..."
                   className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                 />
               </div>
@@ -379,7 +379,7 @@ export default function ExperienceManager() {
                   value={highlightsText}
                   onChange={(e) => setHighlightsText(e.target.value)}
                   rows={4}
-                  placeholder="Developed order billingsPOS system...&#10;Optimized queries speed by 20%..."
+                  placeholder="Architected multi-tenant developer workspace platform and automated subdomain provisioning...&#10;Engineered high-throughput REST APIs and optimized database query latency by 35%..."
                   className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                 />
               </div>
@@ -391,7 +391,7 @@ export default function ExperienceManager() {
                   type="text"
                   value={skillsText}
                   onChange={(e) => setSkillsText(e.target.value)}
-                  placeholder="React, TypeScript, CSS"
+                  placeholder="TypeScript, React, Next.js, Node.js, Express, MongoDB, Tailwind CSS"
                   className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                 />
               </div>

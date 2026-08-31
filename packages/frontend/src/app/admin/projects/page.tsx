@@ -295,7 +295,7 @@ export default function ProjectsManager() {
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="FitPulse Pro"
+                    placeholder="Devvolio Platform"
                     className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                     required
                   />
@@ -324,7 +324,7 @@ export default function ProjectsManager() {
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Mobile-first BMI tracking..."
+                  placeholder="Developer portfolio SaaS & multi-tenant workspace management platform..."
                   className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                   required
                 />
@@ -337,7 +337,7 @@ export default function ProjectsManager() {
                   value={detailedBody}
                   onChange={(e) => setDetailedBody(e.target.value)}
                   rows={4}
-                  placeholder="# Case Study Outline..."
+                  placeholder="# Devvolio Case Study&#10;&#10;### Overview&#10;Engineered high-performance developer workspace architecture with multi-tenant custom subdomains..."
                   className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50 font-mono"
                 />
               </div>
@@ -349,7 +349,7 @@ export default function ProjectsManager() {
                   type="text"
                   value={technologiesText}
                   onChange={(e) => setTechnologiesText(e.target.value)}
-                  placeholder="Next.js, Tailwind CSS, Node.js"
+                  placeholder="React, Next.js, TypeScript, Node.js, Tailwind CSS"
                   className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                   required
                 />
@@ -363,7 +363,7 @@ export default function ProjectsManager() {
                     type="text"
                     value={thumbnail}
                     onChange={(e) => setThumbnail(e.target.value)}
-                    placeholder="https://res.cloudinary.com/..."
+                    placeholder="https://res.cloudinary.com/devvolio/..."
                     className="flex-1 px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                     required
                   />
@@ -402,7 +402,7 @@ export default function ProjectsManager() {
                     type="text"
                     value={githubUrl}
                     onChange={(e) => setGithubUrl(e.target.value)}
-                    placeholder="https://github.com/..."
+                    placeholder="https://github.com/devvolio/devvolio-core"
                     className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                   />
                 </div>
@@ -414,7 +414,7 @@ export default function ProjectsManager() {
                     type="text"
                     value={liveUrl}
                     onChange={(e) => setLiveUrl(e.target.value)}
-                    placeholder="https://..."
+                    placeholder="https://devvolio.in"
                     className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                   />
                 </div>
