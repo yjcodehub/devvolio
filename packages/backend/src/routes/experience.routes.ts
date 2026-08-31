@@ -4,8 +4,8 @@ import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Public timeline lookup
-router.get('/', getExperiences);
+// Protected workspace timeline lookup
+router.get('/', authenticate, getExperiences);
 
 // Protected admin editors
 router.post('/', authenticate, createExperience);

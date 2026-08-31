@@ -11,6 +11,7 @@ import aiRoutes from './ai.routes';
 import workspaceRoutes from './workspace.routes';
 import billingRoutes from './billing.routes';
 import superAdminRoutes from './superAdmin.routes';
+import feedbackRoutes from './feedback.routes';
 
 import { Settings } from '../models/Settings';
 import { Experience } from '../models/Experience';
@@ -91,6 +92,7 @@ router.use('/workspace', workspaceRoutes);
 router.use('/portfolio', workspaceRoutes);
 router.use('/billing', billingRoutes);
 router.use('/super-admin', superAdminRoutes);
+router.use('/feedback', feedbackRoutes);
 
 export function invalidatePortfolioCache() {
   cachedPortfolioData = null;

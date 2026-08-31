@@ -49,6 +49,13 @@ export interface IPortfolio extends Document {
     subtitle?: string;
     email?: string;
   };
+  skills?: Array<{
+    _id?: Types.ObjectId;
+    skillId: Types.ObjectId;
+    proficiency: number;
+    featured: boolean;
+    order: number;
+  }>;
   sectionVisibility?: Map<string, { label: string; visible: boolean }>;
   isPublished: boolean;
   createdBy: Types.ObjectId;
@@ -108,10 +115,16 @@ export const PortfolioSchema = new Schema<IPortfolio>({
     spotifyTrackTitle: { type: String, default: 'Chill Vibes Loop' },
     spotifyTrackArtist: { type: String, default: 'Yash Jais Studio Mix' }
   },
+  skills: [{
+    skillId: { type: Schema.Types.ObjectId, ref: 'Skill', required: true },
+    proficiency: { type: Number, min: 0, max: 100, default: 80 },
+    featured: { type: Boolean, default: false },
+    order: { type: Number, default: 0 }
+  }],
   contact: {
     title: { type: String, default: "Let's Collaborate" },
     subtitle: { type: String, default: "Have an exciting project or role? Send me a message and let's start talking." },
-    email: { type: String, default: "lakshraj2121@gmail.com" }
+    email: { type: String, default: "yash@devvolio.in" }
   },
   sectionVisibility: {
     type: Map,

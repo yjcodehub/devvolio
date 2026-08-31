@@ -89,7 +89,7 @@ This document contains actionable checklists for Security, Performance, and SEO 
     "@type": "Person",
     "name": "Yashkumar Jais",
     "jobTitle": "Frontend Software Engineer",
-    "email": "lakshraj2121@gmail.com",
+    "email": "yash@devvolio.in",
     "url": "https://yashjais.com",
     "sameAs": [
       "https://github.com/yjcodehub",

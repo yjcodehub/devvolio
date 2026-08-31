@@ -1,47 +1,74 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { Settings } from '../models/Settings';
+import { Workspace } from '@devvolio/shared';
 import { sendSuccess } from '../utils/apiResponse';
 import { initialSettings } from '../config/defaultData';
 import { invalidatePortfolioCache } from '../routes/index';
+import { AuthRequest } from '../middleware/auth.middleware';
+import { getTenantIdFromRequest } from '../utils/tenantHelper';
 
-let cachedSettings: any = null;
-
-export async function getSettings(req: Request, res: Response, next: NextFunction) {
+export async function getSettings(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    if (cachedSettings) {
-      return sendSuccess(res, cachedSettings, 'Global website settings loaded successfully');
-    }
+    const tenantId = await getTenantIdFromRequest(req);
+    const filter = tenantId ? { tenantId } : {};
 
-    let settings = await Settings.findOne({});
+    let settings = await Settings.findOne(filter);
     
-    // Fallback if DB is empty
-    if (!settings) {
+    // Fallback if tenant portfolio doesn't exist yet
+    if (!settings && tenantId) {
+      settings = new Settings({
+        ...initialSettings,
+        tenantId,
+        createdBy: req.user?.userId,
+        updatedBy: req.user?.userId
+      });
+      await settings.save();
+    } else if (!settings) {
       settings = new Settings(initialSettings);
       await settings.save();
     }
 
-    cachedSettings = settings;
-    return sendSuccess(res, settings, 'Global website settings loaded successfully');
+    // Attach workspace metadata if tenant exists
+    const workspace = tenantId ? await Workspace.findById(tenantId).select('name slug status') : null;
+    const responsePayload = settings.toObject ? settings.toObject() : { ...settings };
+    if (workspace) {
+      responsePayload.workspace = {
+        id: workspace._id,
+        name: workspace.name,
+        slug: workspace.slug,
+        status: workspace.status
+      };
+    }
+
+    return sendSuccess(res, responsePayload, 'Website settings loaded successfully');
   } catch (error) {
     next(error);
   }
 }
 
-export async function updateSettings(req: Request, res: Response, next: NextFunction) {
+export async function updateSettings(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const updateData = req.body;
-    let settings = await Settings.findOne({});
+    const tenantId = await getTenantIdFromRequest(req);
+    const filter = tenantId ? { tenantId } : {};
+
+    let settings = await Settings.findOne(filter);
 
     if (!settings) {
-      settings = new Settings(updateData);
+      settings = new Settings({
+        ...updateData,
+        ...(tenantId ? { tenantId, createdBy: req.user?.userId, updatedBy: req.user?.userId } : {})
+      });
     } else {
       Object.assign(settings, updateData);
+      if (req.user?.userId) {
+        settings.updatedBy = req.user.userId;
+      }
     }
 
     await settings.save();
-    cachedSettings = settings; // Update cache
     invalidatePortfolioCache(); // Invalidate aggregated route cache
-    return sendSuccess(res, settings, 'Global settings updated successfully');
+    return sendSuccess(res, settings, 'Website settings updated successfully');
   } catch (error) {
     next(error);
   }

@@ -5,9 +5,9 @@ import { checkProjectLimit } from '../middleware/tenantLimits';
 
 const router = Router();
 
-// Public readers
-router.get('/', getProjects);
-router.get('/:slug', getProjectBySlug);
+// Protected workspace project readers
+router.get('/', authenticate, getProjects);
+router.get('/:slug', authenticate, getProjectBySlug);
 
 // Protected admin editors
 router.post('/', authenticate, checkProjectLimit, createProject);

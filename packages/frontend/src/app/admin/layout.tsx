@@ -11,7 +11,7 @@ import DevvolioLogo from '@/components/layout/DevvolioLogo';
 import { 
   LayoutDashboard, FolderKanban, CalendarRange, Wrench, 
   MessageSquareDot, LogOut, FileText, Settings, Sliders, 
-  CreditCard, Crown, ArrowRight 
+  CreditCard, Crown, ArrowRight, MessageSquareHeart 
 } from 'lucide-react';
 
 const ADMIN_LINKS = [
@@ -21,9 +21,10 @@ const ADMIN_LINKS = [
   { label: 'Skills', href: '/admin/skills', icon: <Wrench className="w-4 h-4" /> },
   { label: 'Resumes', href: '/admin/resumes', icon: <FileText className="w-4 h-4" /> },
   { label: 'Messages', href: '/admin/messages', icon: <MessageSquareDot className="w-4 h-4" /> },
+  { label: 'Feedback', href: '/admin/feedback', icon: <MessageSquareHeart className="w-4 h-4" /> },
   { label: 'Page Settings', href: '/admin/settings', icon: <Settings className="w-4 h-4" /> },
   { label: 'Section Visibility', href: '/admin/visibility', icon: <Sliders className="w-4 h-4" /> },
-  { label: 'Billing & Plan', href: '/admin/billing', icon: <CreditCard className="w-4 h-4 text-emerald-400" /> },
+  { label: 'Billing & Plan', href: '/admin/billing', icon: <CreditCard className="w-4 h-4" /> },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -32,7 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, clearAuth } = useAuthStore();
 
   const isLoginPage = pathname === '/admin';
-  const isSuperAdmin = user?.role === 'super_admin' || user?.email === 'lakshraj2121@gmail.com';
+  const isSuperAdmin = user?.role === 'super_admin' || user?.role === 'superAdmin' || user?.email === 'yash@devvolio.in';
 
   const handleLogout = async () => {
     try {
@@ -89,10 +90,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </nav>
           </div>
 
-          <div>
+          <div className="space-y-3 pt-4 border-t border-border/40">
+            {/* Authenticated User Info */}
+            <div className="flex items-center gap-3 px-2 py-1">
+              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs uppercase shrink-0">
+                {user?.name ? user.name.charAt(0) : user?.username?.charAt(0) || 'U'}
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-xs font-bold text-foreground truncate">
+                  {user?.name || user?.username || 'Authenticated User'}
+                </p>
+                <p className="text-[10px] text-muted-foreground truncate font-mono">
+                  {user?.email || ''}
+                </p>
+              </div>
+            </div>
+
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold text-red-500 hover:bg-red-500/10 transition-all hover-glow-trigger"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-bold text-red-500 hover:bg-red-500/10 transition-all hover-glow-trigger"
             >
               <LogOut className="w-4 h-4" />
               <span>Term Session</span>

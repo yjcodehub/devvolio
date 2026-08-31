@@ -1,10 +1,9 @@
 import mongoose from 'mongoose';
 import { connectDatabase } from '../config/database';
-import { User } from '../models/User';
+import { User, Workspace, Portfolio } from '@devvolio/shared';
 import { Project } from '../models/Project';
 import { Experience } from '../models/Experience';
 import { Skill } from '../models/Skill';
-import { Settings } from '../models/Settings';
 import {
   defaultAdmin,
   initialSettings,
@@ -15,43 +14,47 @@ import {
 
 async function seed() {
   console.log('[Seeder] Initializing database migration...');
-  // Note: connectDatabase now also auto-seeds if collections are empty, but since we wipe them first, 
-  // manual seed will force a clean state insertion anyway.
   await connectDatabase();
 
+  const host = mongoose.connection.host || '';
+  const dbName = mongoose.connection.name || '';
+  const allowForceProd = process.argv.includes('--force-prod');
+
+  const isProductionTarget = host.includes('cluster0') || dbName === 'devvolio' || process.env.NODE_ENV === 'production';
+  if (isProductionTarget && !allowForceProd) {
+    console.error(
+      `\n[SAFETY ABORT] Refusing to seed target host "${host}" and database "${dbName}" in NODE_ENV="${process.env.NODE_ENV}".\n` +
+      `Cluster0 and "devvolio" database are reserved for Production Env.\n` +
+      `To seed local environment, ensure MONGO_URI points to Cluster1 (e.g., devvolio_dev).\n` +
+      `If you explicitly intend to overwrite production data, pass the --force-prod flag.\n`
+    );
+    process.exit(1);
+  }
+
   // Clear all collections
-  console.log('[Seeder] Wiping existing data schemas...');
+  console.log(`[Seeder] Wiping existing data schemas on Host: ${host} | DB: ${dbName}...`);
   await User.deleteMany({});
+  await Workspace.deleteMany({});
+  await Portfolio.deleteMany({});
   await Project.deleteMany({});
   await Experience.deleteMany({});
   await Skill.deleteMany({});
-  await Settings.deleteMany({});
 
-  // Seed default admin user
-  console.log('[Seeder] Creating admin user session credentials...');
-  const admin = new User(defaultAdmin);
+  // Seed default SuperAdmin user (No tenant workspace or portfolio assigned)
+  console.log('[Seeder] Creating SuperAdmin user session credentials...');
+  const admin = new User({
+    ...defaultAdmin,
+    role: defaultAdmin.role || 'superAdmin',
+    isEmailVerified: true,
+    workspaces: [],
+    activeWorkspaceId: undefined
+  });
   await admin.save();
-  console.log(`[Seeder] Admin user seeded with email: ${admin.email}`);
-  console.log(`[Seeder] DEFAULT PASSWORD (Change this in production settings): ${defaultAdmin.password}`);
+  console.log(`[Seeder] SuperAdmin user seeded with email: ${admin.email}`);
+  console.log(`[Seeder] DEFAULT PASSWORD: ${defaultAdmin.password}`);
+  console.log('[Seeder] SuperAdmin has no workspace/portfolio. Workspaces & Portfolios are provisioned on user registration.');
 
-  // Seed site settings
-  console.log('[Seeder] Inserting site configurations settings...');
-  const settings = new Settings(initialSettings);
-  await settings.save();
-
-  // Seed experiences
-  console.log('[Seeder] Seeding timeline experiences...');
-  await Experience.insertMany(initialExperiences);
-
-  // Seed projects
-  console.log('[Seeder] Seeding portfolio projects...');
-  await Project.insertMany(initialProjects);
-
-  // Seed skills
-  console.log('[Seeder] Seeding skill tags...');
-  await Skill.insertMany(initialSkills);
-
-  console.log('[Seeder] Database successfully seeded! 🎉');
+  console.log(`[Seeder] Database "${dbName}" on Cluster1 successfully seeded! 🎉`);
 }
 
 seed()

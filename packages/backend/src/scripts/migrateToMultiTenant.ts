@@ -15,7 +15,7 @@ async function migrate() {
   await connectDatabase();
 
   console.log('[Migration] Resolving default owner admin...');
-  let owner = await User.findOne({ role: 'super_admin' });
+  let owner = await User.findOne({ $or: [{ role: 'super_admin' }, { role: 'superAdmin' }] });
   if (!owner) {
     owner = await User.findOne({});
   }
@@ -25,9 +25,9 @@ async function migrate() {
     // Create new Admin with required schema fields
     owner = new User({
       name: 'Yashkumar Jais',
-      email: 'lakshraj2121@gmail.com',
-      passwordHash: '$2b$10$Yn4K0hGzY23b5dD67eH8eO69eR70eT71eY72eU73eI74eO75eP76e', // Placeholder
-      role: 'super_admin',
+      email: 'yash@devvolio.in',
+      password: process.env.DEFAULT_ADMIN_PASSWORD || '',
+      role: 'superAdmin',
       provider: 'local',
       isEmailVerified: true,
       workspaces: []
@@ -35,8 +35,8 @@ async function migrate() {
     await owner.save();
   }
 
-  if (owner.role !== 'super_admin') {
-    owner.role = 'super_admin';
+  if (owner.role !== 'super_admin' && owner.role !== 'superAdmin') {
+    owner.role = 'superAdmin';
     await owner.save();
   }
 

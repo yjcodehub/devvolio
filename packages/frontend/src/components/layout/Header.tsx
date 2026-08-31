@@ -20,6 +20,8 @@ export default function Header() {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [cvUrl, setCvUrl] = useState<string>('');
+  const [githubUrl, setGithubUrl] = useState<string>('');
+  const [linkedinUrl, setLinkedinUrl] = useState<string>('');
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -28,21 +30,23 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const fetchCvUrl = async () => {
+    const fetchSettings = async () => {
       try {
         const apiUrl = getApiUrl();
         const res = await fetch(`${apiUrl}/settings`);
         if (res.ok) {
           const json = await res.json();
-          if (json.success && json.data.cvFileUrl) {
-            setCvUrl(json.data.cvFileUrl);
+          if (json.success && json.data) {
+            if (json.data.cvFileUrl) setCvUrl(json.data.cvFileUrl);
+            if (json.data.socialLinks?.github) setGithubUrl(json.data.socialLinks.github);
+            if (json.data.socialLinks?.linkedin) setLinkedinUrl(json.data.socialLinks.linkedin);
           }
         }
       } catch (err) {
-        console.error('Failed to load settings cvFileUrl in navbar:', err);
+        console.error('Failed to load settings in navbar:', err);
       }
     };
-    fetchCvUrl();
+    fetchSettings();
   }, []);
 
   // Monitor scroll progression to hide header on scroll down, reveal on scroll up
@@ -114,24 +118,28 @@ export default function Header() {
               <span>Resume</span>
             </button>
           )}
-          <a
-            href="https://github.com/yjcodehub"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors duration-200 hover-glow-trigger"
-            aria-label="GitHub"
-          >
-            <Github className="w-5 h-5" />
-          </a>
-          <a
-            href="https://linkedin.com/in/yashjais97"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors duration-200 hover-glow-trigger"
-            aria-label="LinkedIn"
-          >
-            <Linkedin className="w-5 h-5" />
-          </a>
+          {githubUrl && (
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors duration-200 hover-glow-trigger"
+              aria-label="GitHub"
+            >
+              <Github className="w-5 h-5" />
+            </a>
+          )}
+          {linkedinUrl && (
+            <a
+              href={linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors duration-200 hover-glow-trigger"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="w-5 h-5" />
+            </a>
+          )}
         </div>
       </div>
     </motion.header>

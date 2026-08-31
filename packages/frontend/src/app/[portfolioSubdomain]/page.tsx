@@ -101,6 +101,9 @@ export default function TenantPortfolioPage({ params }: PortfolioPageProps) {
     return true;
   };
 
+  const ownerName = portfolio?.hero?.name || portfolio?.about?.name || data?.workspace?.name;
+  const ownerEmail = portfolio?.contact?.email || portfolio?.about?.email;
+
   return (
     <div className="relative w-full flex flex-col items-center">
       {/* 1. Hero Welcome section */}
@@ -150,7 +153,13 @@ export default function TenantPortfolioPage({ params }: PortfolioPageProps) {
 
       {/* 7. Contact Form */}
       {isVisible('contact') && (
-        <ContactForm config={contactData} />
+        <ContactForm 
+          config={contactData} 
+          ownerName={ownerName} 
+          ownerEmail={ownerEmail}
+          tenantId={portfolio?.tenantId || (data?.workspace as any)?._id}
+          slug={subdomain}
+        />
       )}
     </div>
   );

@@ -122,7 +122,7 @@ class OpenAiService {
   private generateMockExtractedData(text: string): StructuredResumeData {
     // Extract emails if found
     const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    const email = emailMatch ? emailMatch[0] : 'lakshraj2121@gmail.com';
+    const email = emailMatch ? emailMatch[0] : 'yash@devvolio.in';
 
     // Extract social URLs if present
     const githubMatch = text.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/[a-zA-Z0-9_-]+/i);

@@ -19,7 +19,7 @@ export default function AdminRootRedirect() {
           const json = await res.json();
           if (json.success && json.data) {
             setUser(json.data);
-            if (json.data.role === 'super_admin' || json.data.email === 'lakshraj2121@gmail.com') {
+            if (json.data.role === 'super_admin' || json.data.role === 'superAdmin' || json.data.email === 'yash@devvolio.in') {
               router.replace('/superadmin');
             } else {
               router.replace('/admin/dashboard');

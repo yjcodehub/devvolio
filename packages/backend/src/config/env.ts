@@ -7,6 +7,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(5000),
   MONGO_URI: z.string().min(1),
+  MONGO_URI_TEST: z.string().optional(),
   JWT_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
