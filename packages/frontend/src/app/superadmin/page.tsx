@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 export default function SuperAdminDashboard() {
   const [analytics, setAnalytics] = useState<any>(null);
@@ -18,7 +18,10 @@ export default function SuperAdminDashboard() {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/super-admin/analytics`, { credentials: 'include' });
+      const res = await fetch(`${apiUrl}/super-admin/analytics`, { 
+        headers: getAuthHeaders(),
+        credentials: 'include' 
+      });
       const json = await res.json();
       if (res.ok && json.success) {
         setAnalytics(json.data);

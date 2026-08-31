@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { CreditCard, Check, Sparkles, Clock, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 export default function BillingAdmin() {
   const [plans, setPlans] = useState<any[]>([]);
@@ -18,7 +18,10 @@ export default function BillingAdmin() {
     try {
       const [plansRes, subRes] = await Promise.all([
         fetch(`${apiUrl}/billing/plans`),
-        fetch(`${apiUrl}/billing/subscription`, { credentials: 'include' })
+        fetch(`${apiUrl}/billing/subscription`, { 
+          headers: getAuthHeaders(),
+          credentials: 'include' 
+        })
       ]);
 
       const plansJson = await plansRes.json();
