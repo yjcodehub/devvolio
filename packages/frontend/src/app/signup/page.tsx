@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DevvolioLogo from '@/components/layout/DevvolioLogo';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getApiUrl } from '@/utils/api';
 import { toast } from 'sonner';
-import { Check, X, Loader2, ArrowRight, Globe, User, Mail, Lock, Phone, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Check, X, Loader2, ArrowRight, Globe, User, Mail, Lock, Phone, Eye, EyeOff, AlertCircle, Info } from 'lucide-react';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -47,6 +47,23 @@ export default function SignupPage() {
   const { setUser } = useAuthStore();
   const apiUrl = getApiUrl();
 
+  // Compute live point-wise password criteria
+  const passwordCriteria = useMemo(() => {
+    const pwd = password;
+
+    const hasLength = pwd.length >= 8 && pwd.length <= 16;
+    const hasUpper = /[A-Z]/.test(pwd);
+    const hasLower = /[a-z]/.test(pwd);
+    const hasNumber = /[0-9]/.test(pwd);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
+
+    return [
+      { id: 'length', label: '8 to 16 characters long', met: hasLength },
+      { id: 'case', label: 'At least 1 uppercase (A-Z) & 1 lowercase (a-z)', met: hasUpper && hasLower },
+      { id: 'symbol', label: 'At least 1 digit (0-9) & 1 special symbol (!@#$...)', met: hasNumber && hasSpecial }
+    ];
+  }, [password]);
+
   // Auto-fill subdomain from name if untouched
   useEffect(() => {
     if (name && !desiredSubdomain) {
@@ -83,7 +100,7 @@ export default function SignupPage() {
   }, [desiredSubdomain, apiUrl]);
 
   // --- Validation Rules ---
-  const validateField = (field: string, val: string, currentName = name, currentPassword = password) => {
+  const validateField = (field: string, val: string, currentPassword = password) => {
     let errorMsg: string | undefined = undefined;
 
     if (field === 'name') {
@@ -126,34 +143,6 @@ export default function SignupPage() {
         errorMsg = 'Must contain at least one number (0-9)';
       } else if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)) {
         errorMsg = 'Must contain at least one special symbol (!@#$%^&*)';
-      } else {
-        // Pattern & Sequence checks (e.g. 123, 987, 999, John@123)
-        const sequences = ['123', '234', '345', '456', '567', '678', '789', '987', '876', '765', '654', '543', '432', '321'];
-        for (const seq of sequences) {
-          if (val.includes(seq)) {
-            errorMsg = `Password cannot contain simple sequences like '${seq}'`;
-            break;
-          }
-        }
-        if (!errorMsg) {
-          const repeats = ['000', '111', '222', '333', '444', '555', '666', '777', '888', '999'];
-          for (const rep of repeats) {
-            if (val.includes(rep)) {
-              errorMsg = `Password cannot contain repeated numbers like '${rep}'`;
-              break;
-            }
-          }
-        }
-        if (!errorMsg && currentName.trim()) {
-          const nameParts = currentName.toLowerCase().trim().split(/\s+/);
-          const pwdLower = val.toLowerCase();
-          for (const part of nameParts) {
-            if (part.length >= 3 && pwdLower.includes(part)) {
-              errorMsg = `Password cannot contain your name ("${part}")`;
-              break;
-            }
-          }
-        }
       }
     }
 
@@ -174,7 +163,7 @@ export default function SignupPage() {
       email: validateField('email', email),
       mobile: validateField('mobile', mobile),
       password: validateField('password', password),
-      confirmPassword: validateField('confirmPassword', confirmPassword, name, password)
+      confirmPassword: validateField('confirmPassword', confirmPassword, password)
     };
 
     // Filter undefined
@@ -283,7 +272,7 @@ export default function SignupPage() {
                     setErrors((prev) => ({ ...prev, name: validateField('name', e.target.value) }));
                   }
                 }}
-                placeholder="Yashkumar Jais"
+                placeholder="e.g. Alex Rivera"
                 className={`w-full px-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
                   errors.name ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
                 }`}
@@ -313,7 +302,7 @@ export default function SignupPage() {
                       setErrors((prev) => ({ ...prev, email: validateField('email', e.target.value) }));
                     }
                   }}
-                  placeholder="yash@devvolio.in"
+                  placeholder="alex@example.com"
                   className={`w-full px-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
                     errors.email ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
                   }`}
@@ -342,7 +331,7 @@ export default function SignupPage() {
                       setErrors((prev) => ({ ...prev, mobile: validateField('mobile', clean) }));
                     }
                   }}
-                  placeholder="9876543210"
+                  placeholder="e.g. 9876543210"
                   className={`w-full px-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
                     errors.mobile ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
                   }`}
@@ -357,9 +346,57 @@ export default function SignupPage() {
 
             {/* Create Password */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-primary" /> Create Password
-              </label>
+              <div className="flex items-center gap-1.5 relative">
+                <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-primary" /> Create Password
+                </label>
+
+                {/* Info Icon with Smooth Popup Hover Card */}
+                <div className="group relative inline-flex items-center">
+                  <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-primary cursor-pointer transition-colors ml-0.5" />
+
+                  {/* Hover Card Popup */}
+                  <div className="absolute left-0 top-full mt-2 w-72 p-3.5 rounded-2xl bg-card/95 border border-border/80 shadow-2xl backdrop-blur-xl z-30 opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-1 group-hover:translate-y-0 scale-95 group-hover:scale-100 transition-all duration-200 ease-out pointer-events-none group-hover:pointer-events-auto">
+                    {/* Subtle arrow pointer */}
+                    <div className="absolute -top-1.5 left-3 w-3 h-3 bg-card/95 border-t border-l border-border/80 rotate-45" />
+
+                    <p className="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5 relative z-10 border-b border-border/50 pb-1.5">
+                      <Lock className="w-3.5 h-3.5 text-primary" /> Password Requirements
+                    </p>
+
+                    <div className="grid grid-cols-1 gap-1.5 relative z-10">
+                      {passwordCriteria.map((item) => {
+                        const isTyped = password.length > 0;
+                        return (
+                          <div key={item.id} className="flex items-center gap-2 transition-colors text-[11px]">
+                            {isTyped ? (
+                              item.met ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                              ) : (
+                                <X className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                              )
+                            ) : (
+                              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 mx-1 flex-shrink-0" />
+                            )}
+                            <span
+                              className={
+                                isTyped
+                                  ? item.met
+                                    ? 'text-emerald-400 font-medium'
+                                    : 'text-red-400/90 font-medium'
+                                  : 'text-muted-foreground'
+                              }
+                            >
+                              {item.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="relative flex items-center">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -371,12 +408,12 @@ export default function SignupPage() {
                     if (touched.password) {
                       setErrors((prev) => ({
                         ...prev,
-                        password: validateField('password', e.target.value, name),
-                        confirmPassword: confirmPassword ? validateField('confirmPassword', confirmPassword, name, e.target.value) : prev.confirmPassword
+                        password: validateField('password', e.target.value),
+                        confirmPassword: confirmPassword ? validateField('confirmPassword', confirmPassword, e.target.value) : prev.confirmPassword
                       }));
                     }
                   }}
-                  placeholder="••••••••••••"
+                  placeholder="Enter strong password"
                   className={`w-full pr-10 pl-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
                     errors.password ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
                   }`}
@@ -411,10 +448,10 @@ export default function SignupPage() {
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
                     if (touched.confirmPassword) {
-                      setErrors((prev) => ({ ...prev, confirmPassword: validateField('confirmPassword', e.target.value, name, password) }));
+                      setErrors((prev) => ({ ...prev, confirmPassword: validateField('confirmPassword', e.target.value, password) }));
                     }
                   }}
-                  placeholder="••••••••••••"
+                  placeholder="Confirm password"
                   className={`w-full pr-10 pl-3.5 py-2.5 rounded-xl border bg-card/60 text-xs text-foreground focus:outline-none transition-all ${
                     errors.confirmPassword ? 'border-red-500 bg-red-500/5 focus:border-red-500' : 'border-border focus:border-primary'
                   }`}
@@ -462,7 +499,7 @@ export default function SignupPage() {
                   type="text"
                   value={desiredSubdomain}
                   onChange={(e) => setDesiredSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                  placeholder="yash"
+                  placeholder="alex"
                   className="w-full pr-28 pl-3.5 py-2.5 rounded-xl border border-border bg-card/60 text-xs font-mono text-primary font-bold focus:outline-none focus:border-primary transition-all"
                 />
                 <span className="absolute right-3.5 text-xs text-muted-foreground font-mono select-none">

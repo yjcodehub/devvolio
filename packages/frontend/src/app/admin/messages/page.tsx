@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { MailOpen, Mail, Trash, Loader2, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 interface Message {
   _id: string;
@@ -23,10 +23,15 @@ export default function MessagesManager() {
   const fetchMessages = async () => {
     try {
       const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/messages`, { credentials: 'include' });
+      const res = await fetch(`${apiUrl}/messages`, {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       if (res.ok) {
         const json = await res.json();
-        setMessages(json.data);
+        setMessages(json.data || []);
+      } else {
+        toast.error('Failed to load inquiry messages');
       }
     } catch (err) {
       toast.error('Failed to load inquiry messages');
@@ -48,7 +53,7 @@ export default function MessagesManager() {
         const apiUrl = getApiUrl();
         const res = await fetch(`${apiUrl}/messages/${msg._id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ isRead: true }),
           credentials: 'include'
         });
@@ -74,6 +79,7 @@ export default function MessagesManager() {
       const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/messages/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
 

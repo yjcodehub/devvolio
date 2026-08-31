@@ -2,7 +2,7 @@
 
 import { useState, useEffect, MouseEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Github, Globe, Search, Filter } from 'lucide-react';
+import { Github, Globe, Search, Filter, FolderPlus } from 'lucide-react';
 
 interface Project {
   _id?: string;
@@ -22,10 +22,51 @@ interface ProjectsGridProps {
   projects: Project[];
 }
 
+const sampleProjects: Project[] = [
+  {
+    title: 'SaaS Developer Workspace (Sample)',
+    slug: 'saas-developer-workspace-sample',
+    description: 'Cloud-based developer portfolio and analytics suite with multi-tenant custom domains and live workspace metrics.',
+    thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop',
+    githubUrl: 'https://github.com',
+    liveUrl: 'https://devvolio.in',
+    technologies: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS'],
+    category: 'SaaS',
+    featured: true,
+    order: 1
+  },
+  {
+    title: 'AI Content Engine (Sample)',
+    slug: 'ai-content-generator-sample',
+    description: 'High-performance AI workflow platform for automated technical documentation, code analysis, and interactive summaries.',
+    thumbnail: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop',
+    githubUrl: 'https://github.com',
+    liveUrl: 'https://devvolio.in',
+    technologies: ['React', 'Node.js', 'OpenAI API', 'MongoDB'],
+    category: 'Full Stack',
+    featured: true,
+    order: 2
+  },
+  {
+    title: 'Interactive Portfolio System (Sample)',
+    slug: 'interactive-portfolio-system-sample',
+    description: 'Responsive developer showcase template featuring smooth animations, live GitHub activity, and custom themes.',
+    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+    githubUrl: 'https://github.com',
+    liveUrl: 'https://devvolio.in',
+    technologies: ['React', 'Framer Motion', 'Lucide Icons'],
+    category: 'Frontend',
+    featured: true,
+    order: 3
+  }
+];
+
 export default function ProjectsGrid({ projects = [] }: ProjectsGridProps) {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  const hasUserProjects = projects && projects.length > 0;
+  const displayProjects = hasUserProjects ? projects : sampleProjects;
 
   const handleCardMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
@@ -46,7 +87,8 @@ export default function ProjectsGrid({ projects = [] }: ProjectsGridProps) {
   };
 
   // Filter projects by category and search queries
-  const filteredProjects = projects.filter((project) => {
+  const filteredProjects = displayProjects.filter((project) => {
+    if (!hasUserProjects) return true; // Show all sample projects when no user projects
     const matchesCategory = activeCategory === 'All' || project.category === activeCategory;
     const matchesSearch =
       project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -56,7 +98,7 @@ export default function ProjectsGrid({ projects = [] }: ProjectsGridProps) {
 
   return (
     <section id="projects" className="py-24 px-6 max-w-6xl mx-auto w-full">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-16">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-12">
         <div className="text-left">
           <h2 className="font-display text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
             Featured Projects
@@ -66,35 +108,49 @@ export default function ProjectsGrid({ projects = [] }: ProjectsGridProps) {
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search projects or tools..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-card/50 backdrop-blur-md text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 transition-colors hover-glow-trigger"
-          />
-        </div>
+        {/* Search Bar - Only show when user has projects */}
+        {hasUserProjects && (
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search projects or tools..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-card/50 backdrop-blur-md text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 transition-colors hover-glow-trigger"
+            />
+          </div>
+        )}
       </div>
 
-      {/* Category Filter Tabs */}
-      <div className="flex flex-wrap gap-2.5 mb-10 pb-2 border-b border-border/20">
-        {['All', 'Frontend', 'Full Stack', 'SaaS', 'Other'].map((category) => (
-          <button
-            key={category}
-            onClick={() => setActiveCategory(category)}
-            className={`px-4 py-2 rounded-lg text-xs font-semibold tracking-tight transition-all hover-glow-trigger ${
-              activeCategory === category
-                ? 'bg-primary text-white shadow-md shadow-primary/10'
-                : 'bg-card/45 border border-border/80 text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
+      {/* Admin Panel setup notice when user has no projects */}
+      {!hasUserProjects && (
+        <div className="mb-10 p-4 rounded-xl border border-primary/30 bg-primary/10 text-center text-xs text-foreground font-medium shadow-sm flex items-center justify-center gap-2 max-w-2xl mx-auto">
+          <FolderPlus className="w-4 h-4 text-primary flex-shrink-0" />
+          <span>
+            <strong className="text-primary font-bold">Sample View:</strong> Add your projects in the Admin Panel to replace these sample cards with your real work.
+          </span>
+        </div>
+      )}
+
+      {/* Category Filter Tabs - Only show when user has projects */}
+      {hasUserProjects && (
+        <div className="flex flex-wrap gap-2.5 mb-10 pb-2 border-b border-border/20">
+          {['All', 'Frontend', 'Full Stack', 'SaaS', 'Other'].map((category) => (
+            <button
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={`px-4 py-2 rounded-lg text-xs font-semibold tracking-tight transition-all hover-glow-trigger ${
+                activeCategory === category
+                  ? 'bg-primary text-white shadow-md shadow-primary/10'
+                  : 'bg-card/45 border border-border/80 text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Card Grid */}
       <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">

@@ -15,7 +15,7 @@ export default function SuperAdminGuard({ children }: { children: React.ReactNod
       if (!isAuthenticated) {
         toast.error('Session expired. Please log in.');
         router.replace('/admin');
-      } else if (user?.role !== 'super_admin' && user?.email !== 'lakshraj2121@gmail.com') {
+      } else if (user?.role !== 'super_admin' && user?.role !== 'superAdmin' && user?.email !== 'yash@devvolio.in') {
         toast.error('Access Denied: Super Admin authorization required.');
         router.replace('/admin/dashboard');
       }
@@ -31,7 +31,7 @@ export default function SuperAdminGuard({ children }: { children: React.ReactNod
     );
   }
 
-  if (!isAuthenticated || (user?.role !== 'super_admin' && user?.email !== 'lakshraj2121@gmail.com')) {
+  if (!isAuthenticated || (user?.role !== 'super_admin' && user?.role !== 'superAdmin' && user?.email !== 'yash@devvolio.in')) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-6 text-center gap-3">
         <div className="p-3 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20">
@@ -39,7 +39,7 @@ export default function SuperAdminGuard({ children }: { children: React.ReactNod
         </div>
         <h1 className="text-xl font-bold font-display">Super Admin Portal Access Restricted</h1>
         <p className="text-xs text-muted-foreground max-w-sm">
-          You must be logged in as Super Admin (lakshraj2121@gmail.com) to access the platform governance portal.
+          You must be logged in as Super Admin (yash@devvolio.in) to access the platform governance portal.
         </p>
       </div>
     );

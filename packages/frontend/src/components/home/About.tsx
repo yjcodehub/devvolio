@@ -15,23 +15,23 @@ interface AboutProps {
 const defaultExpertises = [
   {
     icon: 'monitor',
-    title: 'POS & Restaurant Tech',
-    desc: 'Deep specialization in restaurant billing systems. Engineered digital menus (GoDirekt), kitchen display screens (KDS), and real-time inventory trackers at Relfor Labs.',
-  },
-  {
-    icon: 'layers',
-    title: 'Salon SaaS & CRM',
-    desc: 'Helped design and scale Respark salon software (respark.in). Built modules for appointment calendar schedulers, client relationship cards (CRM), and credit card payments.',
+    title: 'Frontend Engineering',
+    desc: 'Designing responsive, accessible, and high-performance user interfaces with React, Next.js, and modern CSS design systems.',
   },
   {
     icon: 'database',
-    title: 'Full Stack Engineering',
-    desc: 'Engineered FitPulse Pro gym reports and BMI tracker using Next.js, Node.js, and MongoDB. Familiar with roles-based dashboard rendering and automated PDF compile engines.',
+    title: 'Backend Systems & APIs',
+    desc: 'Architecting scalable microservices, robust RESTful APIs, and database solutions using Node.js, Express, and MongoDB.',
+  },
+  {
+    icon: 'layers',
+    title: 'Full Stack Solutions',
+    desc: 'Building end-to-end web applications with secure multi-tenant architectures, state management, and modern cloud deployments.',
   },
   {
     icon: 'globe',
-    title: 'Instruction & Mentoring',
-    desc: 'Former Fullstack Web Developer and Lead Trainer at Webgurukul. Educated 350+ students in JS, PHP, and databases, contributing to over 150 student placements.',
+    title: 'Web Performance & DevOps',
+    desc: 'Optimizing web performance, CI/CD deployment pipelines, SEO metrics, and cloud infrastructure for high availability.',
   },
 ];
 

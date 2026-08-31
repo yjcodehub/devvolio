@@ -4,29 +4,31 @@ import { User } from '@devvolio/shared';
 
 async function resetPassword() {
   await connectDatabase();
-  const email = 'lakshraj2121@gmail.com';
-  const newPassword = 'AdminYash97!';
+
+  // Read parameters dynamically from CLI arguments or environment variables to prevent secret leakage
+  const email = process.argv[2] || process.env.ADMIN_EMAIL || 'yash@devvolio.in';
+  const newPassword = process.argv[3] || process.env.ADMIN_RESET_PASSWORD || process.env.DEFAULT_ADMIN_PASSWORD || 'Devvolio123$';
 
   let user = await User.findOne({ email });
   if (!user) {
-    console.log(`User ${email} not found. Creating super_admin...`);
+    console.log(`User "${email}" not found. Creating superAdmin user...`);
     user = new User({
-      username: 'yjcodehub',
-      name: 'Yashkumar Jais',
+      username: email.split('@')[0],
+      name: 'Super Admin',
       email: email,
       password: newPassword,
-      role: 'super_admin',
+      role: 'superAdmin',
       provider: 'local',
       isEmailVerified: true
     });
   } else {
-    console.log(`Updating password for ${email}...`);
+    console.log(`Updating password for "${email}"...`);
     user.password = newPassword;
-    user.role = 'super_admin';
+    user.role = 'superAdmin';
   }
 
   await user.save();
-  console.log(`[Success] Password for ${email} updated to: ${newPassword}`);
+  console.log(`[Success] Password for ${email} has been updated successfully.`);
 }
 
 resetPassword()

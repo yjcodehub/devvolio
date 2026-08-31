@@ -3,7 +3,7 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash, Calendar, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 interface Experience {
   _id: string;
@@ -40,10 +40,15 @@ export default function ExperienceManager() {
   const fetchExperiences = async () => {
     try {
       const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/experiences`);
+      const res = await fetch(`${apiUrl}/experiences`, {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       if (res.ok) {
         const json = await res.json();
-        setList(json.data);
+        setList(json.data || []);
+      } else {
+        toast.error('Failed to load experience records');
       }
     } catch (err) {
       toast.error('Failed to load experience records');
@@ -115,7 +120,7 @@ export default function ExperienceManager() {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
         credentials: 'include'
       });
@@ -139,6 +144,7 @@ export default function ExperienceManager() {
       const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/experiences/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
 
@@ -267,7 +273,7 @@ export default function ExperienceManager() {
                     type="text"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    placeholder="Software Engineer"
+                    placeholder="Senior Full Stack Engineer"
                     className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                     required
                   />
@@ -280,7 +286,7 @@ export default function ExperienceManager() {
                     type="text"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
-                    placeholder="Relfor Labs Pvt Ltd"
+                    placeholder="Devvolio Technologies Inc."
                     className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                     required
                   />
@@ -308,7 +314,7 @@ export default function ExperienceManager() {
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Pune, India"
+                    placeholder="Bengaluru, India (or Remote)"
                     className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                   />
                 </div>
@@ -361,7 +367,7 @@ export default function ExperienceManager() {
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="General summary of the role..."
+                  placeholder="Architecting core developer portfolio features, multi-tenant subdomains, and API infrastructure..."
                   className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                 />
               </div>
@@ -373,7 +379,7 @@ export default function ExperienceManager() {
                   value={highlightsText}
                   onChange={(e) => setHighlightsText(e.target.value)}
                   rows={4}
-                  placeholder="Developed order billingsPOS system...&#10;Optimized queries speed by 20%..."
+                  placeholder="Architected multi-tenant developer workspace platform and automated subdomain provisioning...&#10;Engineered high-throughput REST APIs and optimized database query latency by 35%..."
                   className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                 />
               </div>
@@ -385,7 +391,7 @@ export default function ExperienceManager() {
                   type="text"
                   value={skillsText}
                   onChange={(e) => setSkillsText(e.target.value)}
-                  placeholder="React, TypeScript, CSS"
+                  placeholder="TypeScript, React, Next.js, Node.js, Express, MongoDB, Tailwind CSS"
                   className="px-3 py-2 rounded-lg border border-border bg-card text-sm text-foreground focus:outline-none focus:border-primary/50"
                 />
               </div>

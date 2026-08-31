@@ -66,9 +66,10 @@ export default function StatsDashboard({ stats, showGithub = true, showLeetcode 
   const mediumPercent = Math.min(100, Math.round((mediumSolved / (mediumTotal || 1)) * 100));
   const hardPercent = Math.min(100, Math.round((hardSolved / (hardTotal || 1)) * 100));
 
-  const githubUser = stats?.githubUsername ?? 'yjcodehub';
+  const hasGithubUser = Boolean(stats?.githubUsername && stats.githubUsername.trim());
+  const githubUser = stats?.githubUsername || '';
   const trackTitle = stats?.spotifyTrackTitle ?? 'Chill Vibes Loop';
-  const trackArtist = stats?.spotifyTrackArtist ?? 'Yash Jais Studio Mix';
+  const trackArtist = stats?.spotifyTrackArtist ?? 'Developer Workspace Mix';
 
   if (!showGithub && !showLeetcode && !showSpotify) {
     return null;
@@ -91,21 +92,35 @@ export default function StatsDashboard({ stats, showGithub = true, showLeetcode 
           <div className={`${
             showLeetcode ? 'lg:col-span-8' : 'lg:col-span-12'
           } rounded-xl border border-border bg-card/25 backdrop-blur-md p-6 text-left hover:border-primary/10 transition-all duration-300 hover-glow-trigger`}>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6">
               <h3 className="font-display font-bold text-lg flex items-center gap-2 text-foreground">
                 <Github className="w-5 h-5 text-primary" />
                 <span>GitHub Activity</span>
               </h3>
-              <a
-                href={`https://github.com/${githubUser}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 hover-glow-trigger"
-              >
-                <span>github.com/{githubUser}</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+              {hasGithubUser ? (
+                <a
+                  href={`https://github.com/${githubUser}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 hover-glow-trigger"
+                >
+                  <span>github.com/{githubUser}</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              ) : null}
             </div>
+
+            {!hasGithubUser && (
+              <div className="p-4 rounded-xl border border-primary/30 bg-primary/10 text-xs text-foreground font-medium mb-6 flex items-start gap-2.5">
+                <Github className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-primary mb-0.5">Connect GitHub Profile</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Once you set up your profile from the Admin Panel along with your GitHub link, your live contribution activity will be displayed here.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Contribution Calendar Graph grid */}
             <div className="overflow-x-auto w-full pb-2">

@@ -4,8 +4,8 @@ import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Public skills lists
-router.get('/', getSkills);
+// Protected workspace skills lists
+router.get('/', authenticate, getSkills);
 
 // Protected admin editors
 router.post('/', authenticate, createSkill);

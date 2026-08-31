@@ -17,12 +17,12 @@ interface HeroProps {
 }
 
 const defaultSequence = [
-  { type: 'input', text: 'yash --role --skills' },
-  { type: 'output', text: '> Software Engineer (Frontend) | 6+ Years' },
-  { type: 'output', text: '> Core: React, Next.js, Angular, Javascript ES6, Typescript' },
-  { type: 'input', text: 'yash --status' },
-  { type: 'output', text: '> Immediate Joiner' },
-  { type: 'output', text: '> Open to Pune, Hyderabad, Mumbai, Bengaluru, Nagpur' }
+  { type: 'input', text: 'devvolio --role --skills' },
+  { type: 'output', text: '> Software Engineer | Building modern web solutions' },
+  { type: 'output', text: '> Core: JavaScript, TypeScript, React, Next.js, Node.js' },
+  { type: 'input', text: 'devvolio --status' },
+  { type: 'output', text: '> Available for projects & engineering opportunities' },
+  { type: 'output', text: '> Powered by Devvolio Platform' }
 ];
 
 export default function Hero({ data, cvFileUrl, showTerminal = true }: HeroProps) {

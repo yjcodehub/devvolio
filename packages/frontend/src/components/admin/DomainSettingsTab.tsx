@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, CheckCircle2, AlertTriangle, ExternalLink, RefreshCw, Copy, Check, ShieldCheck, Sparkles, Lock } from 'lucide-react';
+import { Globe, CheckCircle2, AlertTriangle, XCircle, ExternalLink, RefreshCw, Copy, Check, ShieldCheck, Sparkles, Lock, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { getApiUrl } from '@/utils/api';
 
@@ -11,7 +11,7 @@ interface DomainSettingsTabProps {
 }
 
 export default function DomainSettingsTab({
-  subdomain = 'yash',
+  subdomain = 'workspace',
   customDomain = '',
   domainStatus = 'pending',
   onUpdated
@@ -22,8 +22,9 @@ export default function DomainSettingsTab({
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const apiUrl = getApiUrl();
-  const defaultSubdomainUrl = `http://${subdomain}.lvh.me:3000`;
-  const prodSubdomainUrl = `https://${subdomain}.devvolio.in`;
+  const effectiveSubdomain = subdomain || 'workspace';
+  const defaultSubdomainUrl = `http://${effectiveSubdomain}.lvh.me:3000`;
+  const prodSubdomainUrl = `https://${effectiveSubdomain}.devvolio.in`;
 
   const copyToClipboard = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
@@ -88,14 +89,21 @@ export default function DomainSettingsTab({
     <div className="space-y-8 text-left max-w-4xl">
       {/* Primary Platform Subdomain Panel */}
       <div className="rounded-xl border border-border bg-card/30 p-6 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-primary/10 text-primary">
-            <Globe className="w-5 h-5" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-primary/10 text-primary">
+              <Globe className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-foreground">Platform Free Subdomain</h2>
+              <p className="text-xs text-muted-foreground">Every portfolio automatically receives an active subdomain based on your workspace slug</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-base font-bold text-foreground">Platform Free Subdomain</h2>
-            <p className="text-xs text-muted-foreground">Every portfolio automatically receives an active subdomain</p>
-          </div>
+
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            Active & Ready
+          </span>
         </div>
 
         <div className="p-4 rounded-xl border border-border bg-card/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -122,13 +130,13 @@ export default function DomainSettingsTab({
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card hover:bg-muted/40 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              Test Local Subdomain
+              Test Local Subdomain ({effectiveSubdomain}.lvh.me)
             </a>
           </div>
         </div>
       </div>
 
-      {/* Custom Domain Settings & Skeleton Placeholder Panel */}
+      {/* Custom Domain Settings & Status Explanation */}
       <div className="rounded-xl border border-border/80 bg-card/30 p-6 space-y-6 relative overflow-hidden">
         {/* Header Title with Coming Soon Badge */}
         <div className="flex items-center justify-between">
@@ -143,7 +151,46 @@ export default function DomainSettingsTab({
                   <Sparkles className="w-3 h-3" /> Coming Soon
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">Connect your own custom domain (e.g. john.dev, alexname.com) with automated SSL</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Connect your personal custom domain (e.g. john.dev, alexname.com) with automated SSL</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Domain Status Lifecycle Explanation Box */}
+        <div className="p-4 rounded-xl border border-border/60 bg-muted/20 space-y-3">
+          <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+            <Info className="w-4 h-4 text-primary" />
+            <span>How Custom Domain Status Works:</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div className="p-3 rounded-lg border border-amber-500/20 bg-amber-500/5 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-amber-400">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Pending (Default)</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Domain is saved in your settings, waiting for you to add DNS records (CNAME/TXT) and DNS propagation.
+              </p>
+            </div>
+
+            <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-emerald-400">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Active</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                DNS query successfully detected matching CNAME/TXT records pointing to Devvolio. Live traffic is routed with SSL.
+              </p>
+            </div>
+
+            <div className="p-3 rounded-lg border border-rose-500/20 bg-rose-500/5 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-rose-400">
+                <XCircle className="w-3.5 h-3.5" />
+                <span>Failed</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                DNS verification query failed to resolve or records mismatch. You can retry anytime after DNS updates.
+              </p>
             </div>
           </div>
         </div>

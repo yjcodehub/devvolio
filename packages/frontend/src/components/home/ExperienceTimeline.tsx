@@ -26,39 +26,28 @@ interface ExperienceProps {
   showEducation?: boolean;
 }
 
-const defaultTimelineData: TimelineItem[] = [
+const sampleTimelineData: TimelineItem[] = [
   {
-    role: 'Software Engineer (Frontend)',
-    company: 'Relfor Labs Pvt Ltd',
-    location: 'Pune',
+    role: 'Senior Software Engineer (Sample)',
+    company: 'Tech Innovations Inc.',
+    location: 'San Francisco, CA',
     type: 'work',
-    startDate: '2022-05-01',
-    endDate: '2026-05-01',
-    isCurrent: false,
-    description: 'Led frontend configurations for SaaS spa management dashboards (Respark) and restaurant POS frameworks. Built and refined GoDirekt digital QR menus, Kitchen Displays, and order queues.',
-    skillsUsed: ['React.js', 'AngularJS', 'TypeScript', 'REST APIs', 'Tailwind CSS']
+    startDate: '2023-01-01',
+    endDate: '2026-01-01',
+    isCurrent: true,
+    description: 'Engineering scalable web platforms, leading frontend design systems, and building robust RESTful microservices.',
+    skillsUsed: ['React.js', 'TypeScript', 'Node.js', 'Tailwind CSS']
   },
   {
-    role: 'Trainer & Web Developer',
-    company: 'Webgurukul',
-    location: 'Nagpur',
-    type: 'work',
-    startDate: '2019-05-01',
-    endDate: '2022-05-01',
-    isCurrent: false,
-    description: 'Instructed 350+ developers in responsive designs, vanilla Javascript DOM bindings, PHP server architectures, and MySQL databases. Designed administrative panels and authentication setups.',
-    skillsUsed: ['JavaScript (ES6+)', 'PHP', 'MySQL', 'Bootstrap', 'RWD']
-  },
-  {
-    role: 'B.Tech / B.E. in Computer Science',
-    company: 'Priyadarshini JL College of Engineering',
-    location: 'Nagpur',
+    role: 'B.S. in Computer Science (Sample)',
+    company: 'State University of Engineering',
+    location: 'Academic Campus',
     type: 'education',
-    startDate: '2015-08-01',
-    endDate: '2019-06-01',
+    startDate: '2019-08-01',
+    endDate: '2023-05-01',
     isCurrent: false,
-    description: 'Completed B.Tech engineering studies in Computer Science. Graduated with a CGPA of 8.3/10.',
-    skillsUsed: ['Data Structures', 'DBMS', 'Algorithms', 'Software Engineering']
+    description: 'Graduated with Honors. Specialization in distributed software systems, algorithms, data structures, and cloud computing.',
+    skillsUsed: ['Data Structures', 'Algorithms', 'Software Architecture']
   }
 ];
 
@@ -88,9 +77,8 @@ export default function ExperienceTimeline({ experiences, showWork = true, showE
   const containerRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
 
-  const rawList = experiences && experiences.length > 0
-    ? experiences
-    : defaultTimelineData;
+  const hasUserExperiences = experiences && experiences.length > 0;
+  const rawList = hasUserExperiences ? experiences : sampleTimelineData;
 
   const timelineList = rawList.filter((item) => {
     if (item.type === 'work' && !showWork) return false;
@@ -151,13 +139,22 @@ export default function ExperienceTimeline({ experiences, showWork = true, showE
 
   return (
     <section id="experience" ref={containerRef} className="py-24 px-6 max-w-5xl mx-auto w-full relative">
-      <div className="text-center mb-20">
+      <div className="text-center mb-16">
         <h2 className="font-display text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground">
           Professional Journey
         </h2>
-        <p className="font-sans text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
+        <p className="font-sans text-base text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6">
           A history of engineering digital products and educating the next generation of engineers.
         </p>
+
+        {!hasUserExperiences && (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-primary/30 bg-primary/10 text-xs text-foreground font-medium shadow-sm">
+            <Briefcase className="w-4 h-4 text-primary flex-shrink-0" />
+            <span>
+              <strong className="text-primary font-bold">Sample View:</strong> Add your work history & education in the Admin Panel to display your real timeline.
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="relative mt-12 pl-8 md:pl-0">

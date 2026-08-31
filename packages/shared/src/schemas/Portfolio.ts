@@ -111,7 +111,7 @@ export const PortfolioSchema = new Schema<IPortfolio>({
   contact: {
     title: { type: String, default: "Let's Collaborate" },
     subtitle: { type: String, default: "Have an exciting project or role? Send me a message and let's start talking." },
-    email: { type: String, default: "lakshraj2121@gmail.com" }
+    email: { type: String, default: "yash@devvolio.in" }
   },
   sectionVisibility: {
     type: Map,

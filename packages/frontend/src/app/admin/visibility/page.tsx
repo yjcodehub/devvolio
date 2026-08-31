@@ -5,7 +5,7 @@ import {
   Plus, Trash, Save, Loader2, Sliders, Eye, PlusCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 const CORE_SECTION_KEYS = [
   'skills', 'core', 'contact', 'developerMatrix', 'motionTerminal', 'projects', 'experience',
@@ -72,7 +72,10 @@ export default function VisibilityManager() {
     const fetchSettings = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${apiUrl}/settings`, { credentials: 'include' });
+        const res = await fetch(`${apiUrl}/settings`, {
+          headers: getAuthHeaders(),
+          credentials: 'include'
+        });
         const json = await res.json();
         if (res.ok && json.success) {
           const data = json.data;
@@ -172,7 +175,7 @@ export default function VisibilityManager() {
 
       const res = await fetch(`${apiUrl}/settings`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
         credentials: 'include'
       });

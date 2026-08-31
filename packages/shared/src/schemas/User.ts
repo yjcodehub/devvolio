@@ -10,7 +10,7 @@ export interface IUser extends Document {
   provider: 'local' | 'google' | 'github';
   providerId?: string;
   avatarUrl?: string;
-  role: 'super_admin' | 'admin' | 'user' | 'team_member';
+  role: 'super_admin' | 'superAdmin' | 'admin' | 'user' | 'team_member';
   workspaces: Types.ObjectId[];
   activeWorkspaceId?: Types.ObjectId;
   isEmailVerified: boolean;
@@ -53,7 +53,7 @@ export const UserSchema = new Schema<IUser>({
   provider: { type: String, enum: ['local', 'google', 'github'], default: 'local' },
   providerId: { type: String },
   avatarUrl: { type: String },
-  role: { type: String, enum: ['super_admin', 'admin', 'user', 'team_member'], default: 'user' },
+  role: { type: String, enum: ['super_admin', 'superAdmin', 'admin', 'user', 'team_member'], default: 'user' },
   workspaces: [{ type: Schema.Types.ObjectId, ref: 'Workspace' }],
   activeWorkspaceId: { type: Schema.Types.ObjectId, ref: 'Workspace' },
   isEmailVerified: { type: Boolean, default: false },

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash, Loader2, X, Search } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 interface Skill {
   _id: string;
@@ -45,10 +45,15 @@ export default function SkillsManager() {
   const fetchSkills = async () => {
     try {
       const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/skills`);
+      const res = await fetch(`${apiUrl}/skills`, {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       if (res.ok) {
         const json = await res.json();
-        setSkills(json.data);
+        setSkills(json.data || []);
+      } else {
+        toast.error('Failed to load skills');
       }
     } catch (err) {
       toast.error('Failed to load skills');
@@ -106,7 +111,7 @@ export default function SkillsManager() {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
         credentials: 'include'
       });
@@ -130,6 +135,7 @@ export default function SkillsManager() {
       const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/skills/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
 
