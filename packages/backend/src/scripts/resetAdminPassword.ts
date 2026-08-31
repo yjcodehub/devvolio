@@ -4,7 +4,7 @@ import { User } from '@devvolio/shared';
 
 async function resetPassword() {
   await connectDatabase();
-  
+
   // Read parameters dynamically from CLI arguments or environment variables to prevent secret leakage
   const email = process.argv[2] || process.env.ADMIN_EMAIL || 'yash@devvolio.in';
   const newPassword = process.argv[3] || process.env.ADMIN_RESET_PASSWORD || process.env.DEFAULT_ADMIN_PASSWORD || 'Devvolio123$';
