@@ -5,7 +5,7 @@ import { User } from '@devvolio/shared';
 async function resetPassword() {
   await connectDatabase();
   const email = 'yash@devvolio.in';
-  const newPassword = 'Devvolio123$';
+  const newPassword = 'SecuredPassword123$#@';
 
   let user = await User.findOne({ email });
   if (!user) {
