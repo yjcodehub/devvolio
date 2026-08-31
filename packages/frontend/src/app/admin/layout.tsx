@@ -11,7 +11,7 @@ import DevvolioLogo from '@/components/layout/DevvolioLogo';
 import { 
   LayoutDashboard, FolderKanban, CalendarRange, Wrench, 
   MessageSquareDot, LogOut, FileText, Settings, Sliders, 
-  CreditCard, Crown, ArrowRight 
+  CreditCard, Crown, ArrowRight, MessageSquareHeart 
 } from 'lucide-react';
 
 const ADMIN_LINKS = [
@@ -21,9 +21,10 @@ const ADMIN_LINKS = [
   { label: 'Skills', href: '/admin/skills', icon: <Wrench className="w-4 h-4" /> },
   { label: 'Resumes', href: '/admin/resumes', icon: <FileText className="w-4 h-4" /> },
   { label: 'Messages', href: '/admin/messages', icon: <MessageSquareDot className="w-4 h-4" /> },
+  { label: 'Feedback', href: '/admin/feedback', icon: <MessageSquareHeart className="w-4 h-4" /> },
   { label: 'Page Settings', href: '/admin/settings', icon: <Settings className="w-4 h-4" /> },
   { label: 'Section Visibility', href: '/admin/visibility', icon: <Sliders className="w-4 h-4" /> },
-  { label: 'Billing & Plan', href: '/admin/billing', icon: <CreditCard className="w-4 h-4 text-emerald-400" /> },
+  { label: 'Billing & Plan', href: '/admin/billing', icon: <CreditCard className="w-4 h-4" /> },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

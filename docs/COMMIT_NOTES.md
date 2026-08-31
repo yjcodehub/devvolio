@@ -215,6 +215,64 @@ This document contains structured, point-wise commit and release notes for repos
 - **Frontend Instant Feedback (`packages/frontend/src/app/admin/skills/page.tsx`)**:
   - Added pre-flight check in `handleUpdateSkill`: Clicking the featured star when 6 skills are already featured triggers a descriptive warning toast preventing illegal requests.
 
+---
+
+## 📌 Commit Summary — 2026-08-31 (Billing & Plans Simplification: Free Plan & Pro Plan Coming Soon)
+
+### 💳 Admin Billing Page Streamlining (`packages/frontend/src/app/admin/billing/page.tsx`)
+- **Quota Cards Cleanup**:
+  - Removed the top 3 quota cards (Projects Limit, Monthly AI Quota, Custom Domain) to provide a clean and focused subscription interface.
+- **Two-Tier Plan Matrix**:
+  - **Free Plan**: Highlights active status, Single Workspace, up to 10 projects, manual data management, standard subdomain, full admin portal access, and contact inbox.
+  - **Pro Plan (Coming Soon)**: Highlighted with a sleek purple/primary badge and disabled "Coming Soon" button at **₹99 / month** (or **₹990 / year** with *Save 2 Months Free*). Highlights Multiple Workspaces, AI Resume Parser Auto-Importer, unlimited projects, custom domains, and premium templates.
+
+### 🎨 Sidebar Navigation Icon Normalization (`packages/frontend/src/app/admin/layout.tsx`)
+- **Uniform Nav Icon Styling**:
+  - Replaced the hardcoded emerald text on the `Billing & Plan` sidebar item with the standard icon style (`w-4 h-4`), keeping consistency with all other navigation items.
+
+### ⚙️ Backend Pricing Plan Alignment (`packages/backend/src/controllers/billing.controller.ts`)
+- **Updated `PRICING_PLANS`**:
+  - Configured `free` (₹0) and `pro` (₹99 / month) with matching capability descriptions and coming-soon status flags.
+
+---
+
+## 📌 Commit Summary — 2026-08-31 (User Feedback System & SuperAdmin Governance Hub)
+
+### 🗄️ Backend Feedback Schema & API Architecture
+- **Mongoose Data Model (`packages/backend/src/models/Feedback.ts`)**:
+  - Created [Feedback.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/models/Feedback.ts) with user identity tracking (`userId`, `userName`, `userEmail`, `workspaceSlug`), category categorization (`ui_ux`, `feature_request`, `bug`, `performance`, `update`, `general`), 1–5 star rating, title, message, review status (`pending`, `reviewed`, `in_progress`, `resolved`), and SuperAdmin internal response notes.
+- **Feedback Controller (`packages/backend/src/controllers/feedback.controller.ts`)**:
+  - `POST /api/v1/feedback`: Submits user feedback with auto-resolved tenant and user context.
+  - `GET /api/v1/feedback/my`: Retrieves user's submitted feedback history and status updates.
+  - `GET /api/v1/feedback/admin/all`: SuperAdmin endpoint for paginated feedback with full text search, multi-attribute filtering (category, status, rating), and aggregated metric statistics.
+  - `PATCH /api/v1/feedback/admin/:id`: SuperAdmin endpoint to update review status and attach visible response notes.
+  - `DELETE /api/v1/feedback/admin/:id`: SuperAdmin endpoint to remove feedback records.
+- **Route Bindings (`packages/backend/src/routes/feedback.routes.ts` & `routes/index.ts`)**:
+  - Mounted `/feedback` with authentication and SuperAdmin role guards.
+
+### 🎨 User Admin Feedback Interface (`packages/frontend/src/app/admin/feedback/page.tsx`)
+- **Interactive Feedback Form**:
+  - Category selector chips with icons and color accents.
+  - 1–5 interactive star rating with dynamic sentiment text.
+  - Title and detailed message input with live character counters.
+- **Feedback Tracking History**:
+  - Real-time history stream displaying past submitted feedback with status badges (`Under Review`, `Reviewed`, `In Progress`, `Resolved`) and SuperAdmin response cards.
+- **Admin Navigation (`packages/frontend/src/app/admin/layout.tsx`)**:
+  - Added `Feedback` link with `<MessageSquareHeart />` icon to `ADMIN_LINKS`.
+
+### 👑 SuperAdmin Feedback Governance Hub (`packages/frontend/src/app/superadmin/feedback/page.tsx`)
+- **Executive Metric Strip**: Total Feedbacks, Pending Review, In Progress, Resolved / Built, and Average Satisfaction Rating.
+- **Search & Multi-Filter Toolbar**: Search by user name, email, workspace slug, or message content; filter by category, review status, and star rating.
+- **Rich User-Identity Cards**:
+  - Detailed tenant user identity header (name, email, workspace subdomain badge).
+  - Quick inline status switcher.
+  - Interactive modal to compose responses/internal notes displayed directly to the submitting user.
+  - Feedback deletion capability.
+- **SuperAdmin Navigation (`packages/frontend/src/app/superadmin/layout.tsx`)**:
+  - Added `Feedback Hub` to `SUPER_ADMIN_NAV`.
+
+
+
 
 
 

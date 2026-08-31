@@ -10,11 +10,12 @@ import { getApiUrl } from '@/utils/api';
 import DevvolioLogo from '@/components/layout/DevvolioLogo';
 import { 
   TrendingUp, Globe, CreditCard, LayoutTemplate, Layers, Lock, 
-  LogOut, ArrowLeft, Crown, ShieldAlert
+  LogOut, ArrowLeft, Crown, ShieldAlert, MessageSquareHeart
 } from 'lucide-react';
 
 const SUPER_ADMIN_NAV = [
   { label: 'Overall Dashboard', href: '/superadmin', icon: <TrendingUp className="w-4 h-4 text-emerald-400" /> },
+  { label: 'Feedback Hub', href: '/superadmin/feedback', icon: <MessageSquareHeart className="w-4 h-4 text-pink-400" /> },
   { label: 'Workspaces Directory', href: '/superadmin/workspaces', icon: <Globe className="w-4 h-4 text-primary" /> },
   { label: 'Payment Governance', href: '/superadmin/payments', icon: <CreditCard className="w-4 h-4 text-amber-400" /> },
   { label: 'Template Studio', href: '/superadmin/templates', icon: <LayoutTemplate className="w-4 h-4 text-cyan-400" /> },
