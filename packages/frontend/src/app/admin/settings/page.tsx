@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getApiUrl, getAuthHeaders } from '@/utils/api';
+import { useAuthStore } from '@/stores/useAuthStore';
 import DomainSettingsTab from '@/components/admin/DomainSettingsTab';
 
 interface TerminalStep {
@@ -23,6 +24,7 @@ interface ExpertiseItem {
 type TabType = 'hero' | 'about' | 'stats' | 'contact' | 'domains';
 
 export default function SettingsManager() {
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabType>('hero');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -304,7 +306,7 @@ export default function SettingsManager() {
 
       {activeTab === 'domains' ? (
         <DomainSettingsTab
-          subdomain={portfolioData?.workspace?.slug || 'yash'}
+          subdomain={portfolioData?.workspace?.slug || user?.username || ''}
           customDomain={portfolioData?.customDomain || ''}
           domainStatus={portfolioData?.domainStatus || 'pending'}
           onUpdated={fetchSettings}
@@ -425,7 +427,7 @@ export default function SettingsManager() {
                             type="text"
                             value={step.text}
                             onChange={(e) => updateTerminalStep(idx, 'text', e.target.value)}
-                            placeholder={step.type === 'input' ? 'e.g. yash --status' : 'e.g. > Immediate Joiner'}
+                            placeholder={step.type === 'input' ? 'e.g. devvolio --status' : 'e.g. > Available for opportunities'}
                             className="w-full px-3 py-2 rounded-lg border border-border bg-card text-xs text-foreground focus:outline-none focus:border-primary/65 font-mono"
                           />
                         </div>

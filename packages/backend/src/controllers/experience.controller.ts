@@ -10,11 +10,11 @@ export async function getExperiences(req: AuthRequest, res: Response, next: Next
   try {
     const { type } = req.query;
     const tenantId = await getTenantIdFromRequest(req);
-    const filterQuery: any = {};
-
-    if (tenantId) {
-      filterQuery.tenantId = tenantId;
+    if (!tenantId) {
+      return sendSuccess(res, [], 'No active workspace context');
     }
+
+    const filterQuery: any = { tenantId };
 
     if (type) {
       filterQuery.type = type;
@@ -34,6 +34,10 @@ export async function createExperience(req: AuthRequest, res: Response, next: Ne
     const { role, company, location, type, startDate, endDate, isCurrent, description, highlights, skillsUsed } = req.body;
     const tenantId = await getTenantIdFromRequest(req);
 
+    if (!tenantId) {
+      return next(new AppError('No active workspace found for this user. Please complete onboarding.', 400));
+    }
+
     if (!role || !company || !startDate) {
       return next(new AppError('Missing required experience fields (role, company, startDate)', 400));
     }
@@ -49,7 +53,7 @@ export async function createExperience(req: AuthRequest, res: Response, next: Ne
       description,
       highlights,
       skillsUsed,
-      tenantId: tenantId || undefined,
+      tenantId,
       createdBy: req.user?.userId || undefined,
       updatedBy: req.user?.userId || undefined
     });
@@ -67,8 +71,10 @@ export async function updateExperience(req: AuthRequest, res: Response, next: Ne
     const { id } = req.params;
     const updateData = { ...req.body };
     const tenantId = await getTenantIdFromRequest(req);
-    const filter: any = { _id: id };
-    if (tenantId) filter.tenantId = tenantId;
+
+    if (!tenantId) {
+      return next(new AppError('No active workspace found for this user', 400));
+    }
 
     if (updateData.isCurrent) {
       updateData.endDate = undefined;
@@ -78,9 +84,9 @@ export async function updateExperience(req: AuthRequest, res: Response, next: Ne
       updateData.updatedBy = req.user.userId;
     }
 
-    const exp = await Experience.findOneAndUpdate(filter, updateData, { new: true, runValidators: true });
+    const exp = await Experience.findOneAndUpdate({ _id: id, tenantId }, updateData, { new: true, runValidators: true });
     if (!exp) {
-      return next(new AppError('Timeline entry not found', 404));
+      return next(new AppError('Timeline entry not found in your workspace', 404));
     }
 
     invalidatePortfolioCache(); // Invalidate aggregated route cache
@@ -94,13 +100,15 @@ export async function deleteExperience(req: AuthRequest, res: Response, next: Ne
   try {
     const { id } = req.params;
     const tenantId = await getTenantIdFromRequest(req);
-    const filter: any = { _id: id };
-    if (tenantId) filter.tenantId = tenantId;
 
-    const exp = await Experience.findOneAndDelete(filter);
+    if (!tenantId) {
+      return next(new AppError('No active workspace found for this user', 400));
+    }
+
+    const exp = await Experience.findOneAndDelete({ _id: id, tenantId });
 
     if (!exp) {
-      return next(new AppError('Timeline entry not found', 404));
+      return next(new AppError('Timeline entry not found in your workspace', 404));
     }
 
     invalidatePortfolioCache(); // Invalidate aggregated route cache

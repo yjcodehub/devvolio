@@ -155,8 +155,16 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       tenantId: workspace._id,
       hero: {
         title: name,
-        subtitle: 'Developer Portfolio',
-        tagline: 'Welcome to my interactive developer portfolio powered by Devvolio.'
+        subtitle: 'Full Stack Developer',
+        tagline: 'Welcome to my interactive developer portfolio powered by Devvolio.',
+        terminalSequence: [
+          { type: 'input', text: `${uniqueSlug} --role --skills` },
+          { type: 'output', text: `> Software Engineer | Building modern web applications` },
+          { type: 'output', text: `> Core: JavaScript, TypeScript, React, Next.js, Node.js` },
+          { type: 'input', text: `${uniqueSlug} --status` },
+          { type: 'output', text: `> Available for projects & engineering opportunities` },
+          { type: 'output', text: `> Powered by Devvolio Platform` }
+        ]
       },
       about: {
         bio: `${name} is a passionate developer crafting modern web applications.`,

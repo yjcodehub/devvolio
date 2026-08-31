@@ -64,3 +64,42 @@ This document contains structured, point-wise commit and release notes for repos
 - **SuperAdmin Isolation**: Removed the "Tenant Admin View" link in [superadmin/layout.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/superadmin/layout.tsx).
 - **Admin Guard Redirection**: Updated [AdminGuard.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/components/admin/AdminGuard.tsx) to automatically redirect SuperAdmin users visiting `/admin/*` directly to `/superadmin`.
 
+---
+
+## 📌 Commit Summary — 2026-08-29 (Workspace Subdomain Linking, Collection Isolation & Admin UX Polish)
+
+### 🌐 Dynamic Subdomain & Workspace Routing (`packages/frontend/src/components/admin`, `settings`)
+- **Dynamic Local & Production Subdomains**: Updated [DomainSettingsTab.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/components/admin/DomainSettingsTab.tsx) to dynamically resolve subdomains from the logged-in user's workspace slug (`http://${subdomain}.lvh.me:3000` and `https://${subdomain}.devvolio.in`), removing hardcoded `'yash'` fallbacks.
+- **Settings Workspace Population**: Updated [settings.controller.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/controllers/settings.controller.ts) to populate and return `workspace: { id, name, slug, status }` with settings payloads, and updated [settings/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/settings/page.tsx) to pass the user's workspace slug into the domain settings tab.
+- **Custom Domain Status Lifecycle Clarity**: Added informative UI status explanation cards to [DomainSettingsTab.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/components/admin/DomainSettingsTab.tsx) defining the exact scenarios for `pending` (awaiting DNS records/propagation), `active` (verified via CNAME/TXT query), and `failed` (verification lookup failed/mismatched).
+
+### 🔒 Collection Isolation & Protected Reader Routes (`packages/backend/src/routes`, `controllers`)
+- **Secured GET Readers**: Added `authenticate` middleware to reader endpoints across [skill.routes.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/routes/skill.routes.ts), [project.routes.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/routes/project.routes.ts), [experience.routes.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/routes/experience.routes.ts), and [settings.routes.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/routes/settings.routes.ts).
+- **Strict Tenant Context Verification**: Updated [skill.controller.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/controllers/skill.controller.ts), [project.controller.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/controllers/project.controller.ts), and [experience.controller.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/controllers/experience.controller.ts) so that:
+  - `GET` requests strictly filter by `{ tenantId }` resolved from the user's workspace, returning `[]` if no tenant exists.
+  - `CREATE` requests require a valid `tenantId` and reject unassociated requests with `400 Bad Request`.
+  - `UPDATE` and `DELETE` requests strictly match `{ _id, tenantId }`, ensuring complete cross-workspace data isolation (e.g. Yash and Vidhi never see each other's projects, timeline entries, or skills).
+
+### 👤 Admin Sidebar User Identity (`packages/frontend/src/app/admin/layout.tsx`)
+- **User Identity Card**: Added a profile card in [layout.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/layout.tsx) above the "Term Session" button displaying the authenticated user's full name, email, and avatar badge.
+
+### 🧹 Database Maintenance
+- **Wiped Skills Collection**: Cleaned all residual documents from the `skills` collection in database `devvolio_dev` for a fresh start.
+
+---
+
+## 📌 Commit Summary — 2026-08-29 (Admin API Request Authorization & Generic Devvolio Terminal Defaults)
+
+### 🔐 Authenticated Admin CRUD Queries (`packages/frontend/src/app/admin`)
+- **Admin Fetch Authorization Headers**: Updated [skills/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/skills/page.tsx), [experience/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/experience/page.tsx), [projects/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/projects/page.tsx), [messages/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/messages/page.tsx), and [visibility/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/visibility/page.tsx) to supply `headers: getAuthHeaders()` and `credentials: 'include'` on all `GET`, `POST`, `PUT`, `PATCH`, and `DELETE` requests.
+- **Immediate Data Refresh**: Resolved the issue where newly created or updated skills and experiences in a user's workspace were saved to the database but failed to fetch/render on the screen due to missing auth headers on the protected reader endpoints.
+
+### 💻 Generic Devvolio Motion Terminal Defaults (`packages/frontend/src`, `packages/backend/src`)
+- **Clean Default Terminal Sequence**: Replaced hardcoded personal developer information (`yash --role --skills`, `Software Engineer (Frontend) | 6+ Years`, `Immediate Joiner`, `Open to Pune...`) with clean Devvolio developer defaults:
+  - `devvolio --role --skills` -> `> Software Engineer | Building modern web solutions`
+  - `devvolio --status` -> `> Available for projects & engineering opportunities`
+- **Dynamic Registration Portfolios**: Updated [auth.controller.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/controllers/auth.controller.ts) during user signup to initialize `hero.terminalSequence` with the user's registered workspace slug (`${uniqueSlug} --role --skills`) so every new user (e.g. Vidhi) gets their own initial terminal sequence rather than falling back to personal text.
+- **Updated Settings Placeholders & Seeder Config**: Updated [defaultData.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/config/defaultData.ts), [Hero.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/components/home/Hero.tsx), and [settings/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/settings/page.tsx) to match the standard Devvolio developer branding.
+
+
+

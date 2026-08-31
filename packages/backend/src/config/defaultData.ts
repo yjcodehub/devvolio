@@ -11,10 +11,12 @@ export const initialSettings = {
     subtitle: 'Full Stack Engineer & Web Architect',
     tagline: 'Designing and engineering high-performance web applications and scalable digital solutions.',
     terminalSequence: [
-      { type: 'input', text: 'devvolio --init' },
-      { type: 'output', text: '> Developer Portfolio Initialized' },
-      { type: 'input', text: 'status' },
-      { type: 'output', text: '> Ready to showcase projects, skills, and experience.' }
+      { type: 'input', text: 'devvolio --role --skills' },
+      { type: 'output', text: '> Software Engineer | Building modern web solutions' },
+      { type: 'output', text: '> Core: JavaScript, TypeScript, React, Next.js, Node.js' },
+      { type: 'input', text: 'devvolio --status' },
+      { type: 'output', text: '> Available for projects & engineering opportunities' },
+      { type: 'output', text: '> Powered by Devvolio Platform' }
     ]
   },
   about: {

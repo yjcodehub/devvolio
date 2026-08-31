@@ -9,10 +9,11 @@ import { getTenantIdFromRequest } from '../utils/tenantHelper';
 export async function getSkills(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const tenantId = await getTenantIdFromRequest(req);
-    const filter: any = {};
-    if (tenantId) filter.tenantId = tenantId;
+    if (!tenantId) {
+      return sendSuccess(res, [], 'No active workspace context');
+    }
 
-    const list = await Skill.find(filter).sort({ displayOrder: 1, createdAt: -1 });
+    const list = await Skill.find({ tenantId }).sort({ displayOrder: 1, createdAt: -1 });
     return sendSuccess(res, list, 'Skills list retrieved successfully');
   } catch (error) {
     next(error);
@@ -24,15 +25,17 @@ export async function createSkill(req: AuthRequest, res: Response, next: NextFun
     const { name, category, proficiency, icon, featured, order } = req.body;
     const tenantId = await getTenantIdFromRequest(req);
 
+    if (!tenantId) {
+      return next(new AppError('No active workspace found for this user. Please complete onboarding.', 400));
+    }
+
     if (!name || !category) {
       return next(new AppError('Missing required skill fields (name, category)', 400));
     }
 
-    const existingFilter: any = { name };
-    if (tenantId) existingFilter.tenantId = tenantId;
-    const existing = await Skill.findOne(existingFilter);
+    const existing = await Skill.findOne({ name, tenantId });
     if (existing) {
-      return next(new AppError('A skill with this name already exists', 400));
+      return next(new AppError('A skill with this name already exists in your workspace', 400));
     }
 
     const skill = new Skill({
@@ -42,7 +45,7 @@ export async function createSkill(req: AuthRequest, res: Response, next: NextFun
       icon,
       featured,
       order,
-      tenantId: tenantId || undefined,
+      tenantId,
       createdBy: req.user?.userId || undefined,
       updatedBy: req.user?.userId || undefined
     });
@@ -60,16 +63,18 @@ export async function updateSkill(req: AuthRequest, res: Response, next: NextFun
     const { id } = req.params;
     const updateData = req.body;
     const tenantId = await getTenantIdFromRequest(req);
-    const filter: any = { _id: id };
-    if (tenantId) filter.tenantId = tenantId;
+
+    if (!tenantId) {
+      return next(new AppError('No active workspace found for this user', 400));
+    }
 
     if (req.user?.userId) {
       updateData.updatedBy = req.user.userId;
     }
 
-    const skill = await Skill.findOneAndUpdate(filter, updateData, { new: true, runValidators: true });
+    const skill = await Skill.findOneAndUpdate({ _id: id, tenantId }, updateData, { new: true, runValidators: true });
     if (!skill) {
-      return next(new AppError('Skill not found', 404));
+      return next(new AppError('Skill not found in your workspace', 404));
     }
 
     invalidatePortfolioCache(); // Invalidate aggregated route cache
@@ -83,13 +88,15 @@ export async function deleteSkill(req: AuthRequest, res: Response, next: NextFun
   try {
     const { id } = req.params;
     const tenantId = await getTenantIdFromRequest(req);
-    const filter: any = { _id: id };
-    if (tenantId) filter.tenantId = tenantId;
 
-    const skill = await Skill.findOneAndDelete(filter);
+    if (!tenantId) {
+      return next(new AppError('No active workspace found for this user', 400));
+    }
+
+    const skill = await Skill.findOneAndDelete({ _id: id, tenantId });
 
     if (!skill) {
-      return next(new AppError('Skill not found', 404));
+      return next(new AppError('Skill not found in your workspace', 404));
     }
 
     invalidatePortfolioCache(); // Invalidate aggregated route cache

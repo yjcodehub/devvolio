@@ -4,8 +4,8 @@ import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Public config lookup
-router.get('/', getSettings);
+// Protected workspace config lookup
+router.get('/', authenticate, getSettings);
 
 // Protected admin editor
 router.put('/', authenticate, updateSettings);

@@ -20,11 +20,11 @@ export async function getProjects(req: AuthRequest, res: Response, next: NextFun
   try {
     const { category, search } = req.query;
     const tenantId = await getTenantIdFromRequest(req);
-    const filterQuery: any = {};
-
-    if (tenantId) {
-      filterQuery.tenantId = tenantId;
+    if (!tenantId) {
+      return sendSuccess(res, [], 'No active workspace context');
     }
+
+    const filterQuery: any = { tenantId };
 
     if (category) {
       filterQuery.category = category;
@@ -51,10 +51,11 @@ export async function getProjectBySlug(req: AuthRequest, res: Response, next: Ne
   try {
     const { slug } = req.params;
     const tenantId = await getTenantIdFromRequest(req);
-    const filter: any = { slug };
-    if (tenantId) filter.tenantId = tenantId;
+    if (!tenantId) {
+      return next(new AppError('Project not found matching slug parameter', 404));
+    }
 
-    const project = await Project.findOne(filter);
+    const project = await Project.findOne({ slug, tenantId });
 
     if (!project) {
       return next(new AppError('Project not found matching slug parameter', 404));
@@ -71,6 +72,10 @@ export async function createProject(req: AuthRequest, res: Response, next: NextF
     const { title, description, detailedBody, thumbnail, images, videoUrl, githubUrl, liveUrl, technologies, category, featured, order } = req.body;
     const tenantId = await getTenantIdFromRequest(req);
 
+    if (!tenantId) {
+      return next(new AppError('No active workspace found for this user. Please complete onboarding.', 400));
+    }
+
     if (!title || !description || !thumbnail || !technologies || !category) {
       return next(new AppError('Missing required project fields (title, description, thumbnail, technologies, category)', 400));
     }
@@ -78,11 +83,9 @@ export async function createProject(req: AuthRequest, res: Response, next: NextF
     const slug = sluggify(title);
     
     // Check slug uniqueness within workspace
-    const existingFilter: any = { slug };
-    if (tenantId) existingFilter.tenantId = tenantId;
-    const existing = await Project.findOne(existingFilter);
+    const existing = await Project.findOne({ slug, tenantId });
     if (existing) {
-      return next(new AppError('A project with a similar title/slug already exists', 400));
+      return next(new AppError('A project with a similar title/slug already exists in your workspace', 400));
     }
 
     const project = new Project({
@@ -99,7 +102,7 @@ export async function createProject(req: AuthRequest, res: Response, next: NextF
       category,
       featured,
       order,
-      tenantId: tenantId || undefined,
+      tenantId,
       createdBy: req.user?.userId || undefined,
       updatedBy: req.user?.userId || undefined
     });
@@ -117,22 +120,22 @@ export async function updateProject(req: AuthRequest, res: Response, next: NextF
     const { id } = req.params;
     const updateData = { ...req.body };
     const tenantId = await getTenantIdFromRequest(req);
-    const filter: any = { _id: id };
-    if (tenantId) filter.tenantId = tenantId;
 
-    const project = await Project.findOne(filter);
+    if (!tenantId) {
+      return next(new AppError('No active workspace found for this user', 400));
+    }
+
+    const project = await Project.findOne({ _id: id, tenantId });
     if (!project) {
-      return next(new AppError('Project not found', 404));
+      return next(new AppError('Project not found in your workspace', 404));
     }
 
     // Regenerate slug if title is updated
     if (updateData.title && updateData.title !== project.title) {
       const newSlug = sluggify(updateData.title);
-      const existingFilter: any = { slug: newSlug, _id: { $ne: id } };
-      if (tenantId) existingFilter.tenantId = tenantId;
-      const existing = await Project.findOne(existingFilter);
+      const existing = await Project.findOne({ slug: newSlug, tenantId, _id: { $ne: id } });
       if (existing) {
-        return next(new AppError('A project with a similar title/slug already exists', 400));
+        return next(new AppError('A project with a similar title/slug already exists in your workspace', 400));
       }
       updateData.slug = newSlug;
     }
@@ -155,13 +158,15 @@ export async function deleteProject(req: AuthRequest, res: Response, next: NextF
   try {
     const { id } = req.params;
     const tenantId = await getTenantIdFromRequest(req);
-    const filter: any = { _id: id };
-    if (tenantId) filter.tenantId = tenantId;
 
-    const project = await Project.findOneAndDelete(filter);
+    if (!tenantId) {
+      return next(new AppError('No active workspace found for this user', 400));
+    }
+
+    const project = await Project.findOneAndDelete({ _id: id, tenantId });
 
     if (!project) {
-      return next(new AppError('Project not found', 404));
+      return next(new AppError('Project not found in your workspace', 404));
     }
 
     invalidatePortfolioCache(); // Invalidate aggregated route cache

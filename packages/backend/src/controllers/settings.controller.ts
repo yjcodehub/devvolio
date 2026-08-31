@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { Settings } from '../models/Settings';
+import { Workspace } from '@devvolio/shared';
 import { sendSuccess } from '../utils/apiResponse';
 import { initialSettings } from '../config/defaultData';
 import { invalidatePortfolioCache } from '../routes/index';
@@ -27,7 +28,19 @@ export async function getSettings(req: AuthRequest, res: Response, next: NextFun
       await settings.save();
     }
 
-    return sendSuccess(res, settings, 'Website settings loaded successfully');
+    // Attach workspace metadata if tenant exists
+    const workspace = tenantId ? await Workspace.findById(tenantId).select('name slug status') : null;
+    const responsePayload = settings.toObject ? settings.toObject() : { ...settings };
+    if (workspace) {
+      responsePayload.workspace = {
+        id: workspace._id,
+        name: workspace.name,
+        slug: workspace.slug,
+        status: workspace.status
+      };
+    }
+
+    return sendSuccess(res, responsePayload, 'Website settings loaded successfully');
   } catch (error) {
     next(error);
   }

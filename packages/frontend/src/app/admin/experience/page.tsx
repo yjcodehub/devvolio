@@ -3,7 +3,7 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { Plus, Pencil, Trash, Calendar, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 interface Experience {
   _id: string;
@@ -40,10 +40,15 @@ export default function ExperienceManager() {
   const fetchExperiences = async () => {
     try {
       const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/experiences`);
+      const res = await fetch(`${apiUrl}/experiences`, {
+        headers: getAuthHeaders(),
+        credentials: 'include'
+      });
       if (res.ok) {
         const json = await res.json();
-        setList(json.data);
+        setList(json.data || []);
+      } else {
+        toast.error('Failed to load experience records');
       }
     } catch (err) {
       toast.error('Failed to load experience records');
@@ -115,7 +120,7 @@ export default function ExperienceManager() {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
         credentials: 'include'
       });
@@ -139,6 +144,7 @@ export default function ExperienceManager() {
       const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/experiences/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
 
