@@ -5,7 +5,7 @@ import {
   Globe, Search, RefreshCw, Loader2, UserCheck, Power, Crown
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 interface WorkspaceItem {
   id: string;
@@ -32,7 +32,10 @@ export default function WorkspacesGovernancePage() {
   const fetchWorkspaces = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/super-admin/workspaces`, { credentials: 'include' });
+      const res = await fetch(`${apiUrl}/super-admin/workspaces`, { 
+        headers: getAuthHeaders(),
+        credentials: 'include' 
+      });
       const json = await res.json();
       if (res.ok && json.success) {
         setWorkspaces(json.data);
@@ -56,7 +59,7 @@ export default function WorkspacesGovernancePage() {
     try {
       const res = await fetch(`${apiUrl}/super-admin/workspaces/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ status: newStatus }),
         credentials: 'include'
       });
@@ -78,7 +81,7 @@ export default function WorkspacesGovernancePage() {
     try {
       const res = await fetch(`${apiUrl}/super-admin/workspaces/${id}/plan`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ plan: newPlan }),
         credentials: 'include'
       });
@@ -99,6 +102,7 @@ export default function WorkspacesGovernancePage() {
     try {
       const res = await fetch(`${apiUrl}/super-admin/workspaces/${id}/impersonate`, {
         method: 'POST',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
 

@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 import { Loader2 } from 'lucide-react';
 
 export default function AdminRootRedirect() {
@@ -14,7 +14,10 @@ export default function AdminRootRedirect() {
     const checkSession = async () => {
       try {
         const apiUrl = getApiUrl();
-        const res = await fetch(`${apiUrl}/auth/me`, { credentials: 'include' });
+        const res = await fetch(`${apiUrl}/auth/me`, { 
+          headers: getAuthHeaders(),
+          credentials: 'include' 
+        });
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data) {
