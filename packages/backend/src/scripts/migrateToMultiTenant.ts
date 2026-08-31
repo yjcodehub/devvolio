@@ -26,7 +26,7 @@ async function migrate() {
     owner = new User({
       name: 'Yashkumar Jais',
       email: 'yash@devvolio.in',
-      password: process.env.DEFAULT_ADMIN_PASSWORD || 'Devvolio123$',
+      password: process.env.DEFAULT_ADMIN_PASSWORD || '',
       role: 'superAdmin',
       provider: 'local',
       isEmailVerified: true,

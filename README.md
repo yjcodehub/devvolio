@@ -31,8 +31,8 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 FRONTEND_URL=http://localhost:3000
 
 # Default administrator credentials for database seeding
-PORTFOLIO_ADMIN_EMAIL=yash@devvolio.in
-PORTFOLIO_ADMIN_PASSWORD=SecuredPassword123$#@
+PORTFOLIO_ADMIN_EMAIL=admin@example.com
+PORTFOLIO_ADMIN_PASSWORD=your_secure_admin_password_here
 ```
 
 **Frontend (`/frontend/.env`):**

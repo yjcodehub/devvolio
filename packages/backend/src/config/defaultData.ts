@@ -1,7 +1,7 @@
 export const defaultAdmin = {
-  username: 'yjcodehub',
-  email: 'yash@devvolio.in',
-  password: 'Devvolio123$', // Default password (hashed in Mongoose pre-save hook)
+  username: process.env.ADMIN_DEFAULT_USERNAME || 'yjcodehub',
+  email: process.env.ADMIN_DEFAULT_EMAIL || 'yash@devvolio.in',
+  password: process.env.ADMIN_DEFAULT_PASSWORD || process.env.DEFAULT_ADMIN_PASSWORD || '',
   role: 'superAdmin'
 };
 

@@ -33,7 +33,7 @@ This document contains structured, point-wise commit and release notes for repos
 
 ### 🗄️ Database & Schema (`packages/backend/src/scripts`, `packages/shared/src/schemas`)
 - **Database Wipe**: Created and executed [clearDatabase.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/clearDatabase.ts) to permanently drop all collections in `devvolio_dev` database.
-- **Default Admin Seeding**: Updated [defaultData.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/config/defaultData.ts) constant `defaultAdmin` to use email `yash@devvolio.in`, password `Devvolio123$`, and role `superAdmin`. Successfully re-seeded the database using [seed.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/seed.ts).
+- **Default Admin Seeding**: Updated [defaultData.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/config/defaultData.ts) constant `defaultAdmin` to use email `yash@devvolio.in`, dynamic env password, and role `superAdmin`. Successfully re-seeded the database using [seed.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/seed.ts).
 - **Schema Role Union**: Updated [User.ts](file:///c:/Learning/projects/devvolio/packages/shared/src/schemas/User.ts) to include `'superAdmin'` in the `IUser` interface and Mongoose `UserSchema` enum.
 - **Portfolio Default Email**: Updated [Portfolio.ts](file:///c:/Learning/projects/devvolio/packages/shared/src/schemas/Portfolio.ts) default contact email to `yash@devvolio.in`.
 
@@ -44,7 +44,7 @@ This document contains structured, point-wise commit and release notes for repos
 - **Scripts & Services Cleanup**: Replaced all references to `lakshraj2121@gmail.com` with `yash@devvolio.in` in [migrateToMultiTenant.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/migrateToMultiTenant.ts), [resetAdminPassword.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/resetAdminPassword.ts), [email.service.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/services/email.service.ts), and [openAi.service.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/services/openAi.service.ts).
 
 ### 📚 Documentation & Placeholders (`README.md`, `docs/`)
-- Updated [README.md](file:///c:/Learning/projects/devvolio/README.md), [API.md](file:///c:/Learning/projects/devvolio/docs/API.md), [CHECKLISTS.md](file:///c:/Learning/projects/devvolio/docs/CHECKLISTS.md), and [DATABASE.md](file:///c:/Learning/projects/devvolio/docs/DATABASE.md) to reflect `yash@devvolio.in` and `Devvolio123$`.
+- Updated [README.md](file:///c:/Learning/projects/devvolio/README.md), [API.md](file:///c:/Learning/projects/devvolio/docs/API.md), [CHECKLISTS.md](file:///c:/Learning/projects/devvolio/docs/CHECKLISTS.md), and [DATABASE.md](file:///c:/Learning/projects/devvolio/docs/DATABASE.md) to reflect `yash@devvolio.in` and environment-based admin credentials.
 - Updated UI input placeholders and payment prefill emails in [settings/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/settings/page.tsx) and [billing/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/billing/page.tsx).
 
 ---
