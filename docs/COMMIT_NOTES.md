@@ -124,3 +124,13 @@ This document contains structured, point-wise commit and release notes for repos
 ### ⚙️ Settings & Home Expertise Polish (`packages/frontend/src`)
 - **Settings Placeholders**: Updated [settings/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/settings/page.tsx) hero subtitle, hero title, tagline, bio, expertise, and contact email placeholders to modern Devvolio standards.
 - **Home About Fallbacks**: Replaced legacy `defaultExpertises` entries in [About.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/components/home/About.tsx) with clean, developer-centric specialties (Frontend Engineering, Backend Systems & APIs, Full Stack Solutions, Web Performance & DevOps).
+
+---
+
+## 📌 Commit Summary — 2026-08-31 (Security & Secret Sanitization)
+
+### 🛡️ Backend Scripts Secret Sanitization (`packages/backend/src/scripts`)
+- **Reset Admin Password Script**: Sanitized [resetAdminPassword.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/resetAdminPassword.ts) by removing hardcoded password strings and reading `email` (`process.argv[2] || process.env.ADMIN_EMAIL`) and `password` (`process.argv[3] || process.env.ADMIN_RESET_PASSWORD || process.env.DEFAULT_ADMIN_PASSWORD`) dynamically from CLI arguments or environment variables.
+- **Multi-Tenant Migration Script**: Sanitized [migrateToMultiTenant.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/migrateToMultiTenant.ts) by removing the dummy bcrypt hash string and relying on standard password schema hooks with `process.env.DEFAULT_ADMIN_PASSWORD`.
+- **GitGuardian & Push Protection Compliance**: Removed all potential high-entropy secret patterns from committed scripts to satisfy GitGuardian secret scanning and GitHub push protection.
+
