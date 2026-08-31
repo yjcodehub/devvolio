@@ -6,7 +6,7 @@ import Link from 'next/link';
 import SuperAdminGuard from '@/components/admin/SuperAdminGuard';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 import DevvolioLogo from '@/components/layout/DevvolioLogo';
 import { 
   TrendingUp, Globe, CreditCard, LayoutTemplate, Layers, Lock, 
@@ -33,6 +33,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
       const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/auth/logout`, {
         method: 'POST',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
 

@@ -18,14 +18,34 @@ interface AuthState {
   clearAuth: () => void;
 }
 
+const getInitialUser = (): AdminUser | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const cached = localStorage.getItem('user');
+    return cached ? JSON.parse(cached) : null;
+  } catch {
+    return null;
+  }
+};
+
+const initialUser = getInitialUser();
+const initialToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
-  isAuthenticated: false,
+  user: initialUser,
+  token: initialToken,
+  isAuthenticated: !!initialUser,
   loading: true,
   setUser: (user, token) => {
-    if (token) {
-      localStorage.setItem('token', token);
+    if (typeof window !== 'undefined') {
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('user');
+      }
     }
     const currentToken = token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
     set({ user, token: currentToken, isAuthenticated: !!user, loading: false });
@@ -34,6 +54,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearAuth: () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
     set({ user: null, token: null, isAuthenticated: false, loading: false });
   },

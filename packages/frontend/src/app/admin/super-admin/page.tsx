@@ -6,7 +6,7 @@ import {
   ExternalLink, UserCheck, Power, RefreshCw, Loader2, ArrowUpRight, Crown, AlertTriangle 
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { getApiUrl } from '@/utils/api';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
 
 interface WorkspaceItem {
   id: string;
@@ -35,8 +35,14 @@ export default function SuperAdminPanel() {
     setLoading(true);
     try {
       const [analyticsRes, wsRes] = await Promise.all([
-        fetch(`${apiUrl}/super-admin/analytics`, { credentials: 'include' }),
-        fetch(`${apiUrl}/super-admin/workspaces`, { credentials: 'include' })
+        fetch(`${apiUrl}/super-admin/analytics`, { 
+          headers: getAuthHeaders(),
+          credentials: 'include' 
+        }),
+        fetch(`${apiUrl}/super-admin/workspaces`, { 
+          headers: getAuthHeaders(),
+          credentials: 'include' 
+        })
       ]);
 
       const analyticsJson = await analyticsRes.json();
@@ -67,7 +73,7 @@ export default function SuperAdminPanel() {
     try {
       const res = await fetch(`${apiUrl}/super-admin/workspaces/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ status: newStatus }),
         credentials: 'include'
       });
@@ -89,7 +95,7 @@ export default function SuperAdminPanel() {
     try {
       const res = await fetch(`${apiUrl}/super-admin/workspaces/${id}/plan`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ plan: newPlan }),
         credentials: 'include'
       });
@@ -110,6 +116,7 @@ export default function SuperAdminPanel() {
     try {
       const res = await fetch(`${apiUrl}/super-admin/workspaces/${id}/impersonate`, {
         method: 'POST',
+        headers: getAuthHeaders(),
         credentials: 'include'
       });
 

@@ -1,28 +1,74 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { Loader2, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
+import { getApiUrl, getAuthHeaders } from '@/utils/api';
+
+const isSuperAdminUser = (user: { role?: string; email?: string } | null): boolean => {
+  if (!user) return false;
+  return user.role === 'super_admin' || user.role === 'superAdmin' || user.email === 'yash@devvolio.in';
+};
 
 export default function SuperAdminGuard({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, loading } = useAuthStore();
+  const { user, isAuthenticated, loading, setUser, clearAuth } = useAuthStore();
   const router = useRouter();
+  const [verifying, setVerifying] = useState(true);
 
   useEffect(() => {
-    if (!loading) {
-      if (!isAuthenticated) {
-        toast.error('Session expired. Please log in.');
-        router.replace('/admin');
-      } else if (user?.role !== 'super_admin' && user?.role !== 'superAdmin' && user?.email !== 'yash@devvolio.in') {
-        toast.error('Access Denied: Super Admin authorization required.');
-        router.replace('/admin/dashboard');
-      }
-    }
-  }, [loading, isAuthenticated, user, router]);
+    let isMounted = true;
 
-  if (loading) {
+    const verifySuperAdminSession = async () => {
+      try {
+        const apiUrl = getApiUrl();
+        const res = await fetch(`${apiUrl}/auth/me`, {
+          headers: getAuthHeaders(),
+          credentials: 'include'
+        });
+
+        if (!res.ok) {
+          throw new Error('Unauthorized');
+        }
+
+        const json = await res.json();
+        if (json.success && json.data) {
+          if (!isMounted) return;
+          setUser(json.data);
+
+          if (!isSuperAdminUser(json.data)) {
+            toast.error('Access Denied: Super Admin authorization required.');
+            router.replace('/admin/dashboard');
+            return;
+          }
+        } else {
+          throw new Error('Verification failed');
+        }
+      } catch (err) {
+        if (!isMounted) return;
+        if (!isSuperAdminUser(user)) {
+          clearAuth();
+          toast.error('Session expired or unauthorized. Please log in.');
+          router.replace('/admin');
+        }
+      } finally {
+        if (isMounted) {
+          setVerifying(false);
+        }
+      }
+    };
+
+    verifySuperAdminSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router, setUser, clearAuth]);
+
+  const isSuper = isSuperAdminUser(user);
+
+  if (verifying && !isSuper) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground gap-3">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -31,7 +77,7 @@ export default function SuperAdminGuard({ children }: { children: React.ReactNod
     );
   }
 
-  if (!isAuthenticated || (user?.role !== 'super_admin' && user?.role !== 'superAdmin' && user?.email !== 'yash@devvolio.in')) {
+  if (!isSuper) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-6 text-center gap-3">
         <div className="p-3 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20">
