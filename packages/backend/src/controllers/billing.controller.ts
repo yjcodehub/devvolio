@@ -11,50 +11,36 @@ import { Types } from 'mongoose';
 export const PRICING_PLANS = [
   {
     id: 'free',
-    name: 'Free Developer Tier',
+    name: 'Free Plan',
     priceInr: 0,
     billingCycle: 'forever',
     description: 'Perfect for building and showcasing your initial developer portfolio.',
     features: [
-      '1 Workspace Included',
-      'Max 5 Featured Projects',
+      'Single Workspace Included',
+      'Up to 10 Projects',
+      'Manual Portfolio Data Updates',
       'Standard Subdomain (username.devvolio.in)',
-      '5 AI Content Generations / Month',
-      'Standard Resume Upload'
+      'Full Admin Portal Access (Projects, Experience, Skills)',
+      'Contact Form & Messages Inbox'
     ],
     limits: PLAN_LIMITS.free
   },
   {
     id: 'pro',
-    name: 'Pro Developer SaaS',
-    priceInr: 999,
+    name: 'Pro Plan',
+    priceInr: 99,
     billingCycle: 'monthly',
-    description: 'For ambitious developers & freelancers needing unlimited projects and custom domains.',
+    isComingSoon: true,
+    description: 'Unlock AI automation, multiple workspaces, and premium portfolio themes.',
     features: [
-      'Everything in Free',
+      'Multiple Workspaces Support',
+      'AI-Powered Resume Parser & Auto-Importer',
       'Unlimited Projects & Experiences',
-      'Custom Domain Mapping (john.dev / alex.com)',
-      '500 AI Generations / Month',
-      'AI Resume Parser Auto-Importer',
-      'Priority Email & Chat Support'
+      'Varieties of Premium Templates',
+      'Custom Domain Mapping',
+      'Priority Support & Custom Enhancements'
     ],
     limits: PLAN_LIMITS.pro
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise / Studio',
-    priceInr: 2999,
-    billingCycle: 'monthly',
-    description: 'For agencies & senior tech leads requiring custom branding and dedicated infrastructure.',
-    features: [
-      'Everything in Pro',
-      'White-label Custom Branding',
-      'Dedicated Database Instance',
-      '5,000 AI Generations / Month',
-      '99.9% Uptime SLA',
-      'Dedicated Account Manager'
-    ],
-    limits: PLAN_LIMITS.enterprise
   }
 ];
 

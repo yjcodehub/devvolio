@@ -34,12 +34,12 @@ export async function getPublicPortfolioData(req: Request, res: Response, next: 
 
     if (!workspace) {
       // Lookup portfolio by custom domain
-      portfolio = await Portfolio.findOne({ customDomain: cleanIdentifier, domainStatus: 'active' });
+      portfolio = await Portfolio.findOne({ customDomain: cleanIdentifier, domainStatus: 'active' }).populate('skills.skillId');
       if (portfolio) {
         workspace = await Workspace.findById(portfolio.tenantId);
       }
     } else {
-      portfolio = await Portfolio.findOne({ tenantId: workspace._id });
+      portfolio = await Portfolio.findOne({ tenantId: workspace._id }).populate('skills.skillId');
     }
 
     if (!workspace || !portfolio) {
@@ -51,12 +51,28 @@ export async function getPublicPortfolioData(req: Request, res: Response, next: 
 
     // 2. Query workspace collections in parallel
     const tenantId = workspace._id;
-    const [experiences, projects, skills, certificates] = await Promise.all([
+    const [experiences, projects, certificates] = await Promise.all([
       Experience.find({ tenantId }).sort({ startDate: -1 }),
       Project.find({ tenantId }).sort({ displayOrder: 1, createdAt: -1 }),
-      Skill.find({ tenantId }).sort({ displayOrder: 1, createdAt: -1 }),
       Certificate.find({ tenantId }).sort({ issueDate: -1 })
     ]);
+
+    // Format populated skills from portfolio
+    const formattedSkills = (portfolio.skills || [])
+      .filter((item: any) => item.skillId)
+      .map((item: any) => {
+        const skillDoc = item.skillId;
+        return {
+          _id: item._id,
+          name: skillDoc.name,
+          category: skillDoc.category,
+          icon: skillDoc.icon,
+          proficiency: item.proficiency ?? 80,
+          featured: item.featured ?? false,
+          order: item.order ?? 0
+        };
+      })
+      .sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
 
     const publicPayload = {
       workspace: {
@@ -66,7 +82,7 @@ export async function getPublicPortfolioData(req: Request, res: Response, next: 
       portfolio,
       experiences,
       projects,
-      skills,
+      skills: formattedSkills,
       certificates
     };
 

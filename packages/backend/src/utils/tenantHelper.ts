@@ -15,12 +15,23 @@ export async function getTenantIdFromRequest(req: AuthRequest): Promise<Types.Ob
     return new Types.ObjectId(req.tenant.id);
   }
 
-  // 2. Check x-tenant-id header
+  // 2. Check x-tenant-id or x-tenant-slug header
   const headerTenantId = req.headers['x-tenant-id'];
   if (headerTenantId) {
     const rawId = Array.isArray(headerTenantId) ? headerTenantId[0] : headerTenantId;
     if (Types.ObjectId.isValid(rawId)) {
       return new Types.ObjectId(rawId);
+    }
+  }
+
+  const headerTenantSlug = req.headers['x-tenant-slug'];
+  if (headerTenantSlug) {
+    const rawSlug = Array.isArray(headerTenantSlug) ? headerTenantSlug[0] : headerTenantSlug;
+    if (rawSlug) {
+      const ws = await Workspace.findOne({ slug: rawSlug.toString().toLowerCase().trim() });
+      if (ws) {
+        return ws._id as Types.ObjectId;
+      }
     }
   }
 

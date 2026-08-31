@@ -33,7 +33,7 @@ This document contains structured, point-wise commit and release notes for repos
 
 ### 🗄️ Database & Schema (`packages/backend/src/scripts`, `packages/shared/src/schemas`)
 - **Database Wipe**: Created and executed [clearDatabase.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/clearDatabase.ts) to permanently drop all collections in `devvolio_dev` database.
-- **Default Admin Seeding**: Updated [defaultData.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/config/defaultData.ts) constant `defaultAdmin` to use email `yash@devvolio.in`, password `Devvolio123$`, and role `superAdmin`. Successfully re-seeded the database using [seed.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/seed.ts).
+- **Default Admin Seeding**: Updated [defaultData.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/config/defaultData.ts) constant `defaultAdmin` to use email `yash@devvolio.in`, dynamic env password, and role `superAdmin`. Successfully re-seeded the database using [seed.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/seed.ts).
 - **Schema Role Union**: Updated [User.ts](file:///c:/Learning/projects/devvolio/packages/shared/src/schemas/User.ts) to include `'superAdmin'` in the `IUser` interface and Mongoose `UserSchema` enum.
 - **Portfolio Default Email**: Updated [Portfolio.ts](file:///c:/Learning/projects/devvolio/packages/shared/src/schemas/Portfolio.ts) default contact email to `yash@devvolio.in`.
 
@@ -44,7 +44,7 @@ This document contains structured, point-wise commit and release notes for repos
 - **Scripts & Services Cleanup**: Replaced all references to `lakshraj2121@gmail.com` with `yash@devvolio.in` in [migrateToMultiTenant.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/migrateToMultiTenant.ts), [resetAdminPassword.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/resetAdminPassword.ts), [email.service.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/services/email.service.ts), and [openAi.service.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/services/openAi.service.ts).
 
 ### 📚 Documentation & Placeholders (`README.md`, `docs/`)
-- Updated [README.md](file:///c:/Learning/projects/devvolio/README.md), [API.md](file:///c:/Learning/projects/devvolio/docs/API.md), [CHECKLISTS.md](file:///c:/Learning/projects/devvolio/docs/CHECKLISTS.md), and [DATABASE.md](file:///c:/Learning/projects/devvolio/docs/DATABASE.md) to reflect `yash@devvolio.in` and `Devvolio123$`.
+- Updated [README.md](file:///c:/Learning/projects/devvolio/README.md), [API.md](file:///c:/Learning/projects/devvolio/docs/API.md), [CHECKLISTS.md](file:///c:/Learning/projects/devvolio/docs/CHECKLISTS.md), and [DATABASE.md](file:///c:/Learning/projects/devvolio/docs/DATABASE.md) to reflect `yash@devvolio.in` and environment-based admin credentials.
 - Updated UI input placeholders and payment prefill emails in [settings/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/settings/page.tsx) and [billing/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/admin/billing/page.tsx).
 
 ---
@@ -133,4 +133,150 @@ This document contains structured, point-wise commit and release notes for repos
 - **Reset Admin Password Script**: Sanitized [resetAdminPassword.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/resetAdminPassword.ts) by removing hardcoded password strings and reading `email` (`process.argv[2] || process.env.ADMIN_EMAIL`) and `password` (`process.argv[3] || process.env.ADMIN_RESET_PASSWORD || process.env.DEFAULT_ADMIN_PASSWORD`) dynamically from CLI arguments or environment variables.
 - **Multi-Tenant Migration Script**: Sanitized [migrateToMultiTenant.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/scripts/migrateToMultiTenant.ts) by removing the dummy bcrypt hash string and relying on standard password schema hooks with `process.env.DEFAULT_ADMIN_PASSWORD`.
 - **GitGuardian & Push Protection Compliance**: Removed all potential high-entropy secret patterns from committed scripts to satisfy GitGuardian secret scanning and GitHub push protection.
+
+---
+
+## 📌 Commit Summary — 2026-08-31 (Onboarding Flow: Default Developer Category & Subscription Selection)
+
+### 🚀 Onboarding Wizard Redesign (`packages/frontend/src/app/onboarding/page.tsx`)
+- **3-Step Linear Progression**:
+  - **Step 1: Registration** (Auto-marked as completed post-signup).
+  - **Step 2: Category Selection** (Selectable cards for **Software Developer** [Default] and **UI/UX & Product Design** with interactive dynamic specialization preset pills and custom role input).
+  - **Step 3: Subscription Selection** (Free vs Pro comparison).
+- **Free Subscription (Default Active)**:
+  - Default tier at ₹0 / Free Forever.
+  - **Single Workspace**: 1 developer/designer portfolio workspace included.
+  - Comprehensive feature breakdown highlighting all Admin Portal features (Up to 10 Projects showcase, Manual Data CRUD, Technical Skills Arsenal, Experience Timeline, Developer Matrix, Motion Terminal Hero, Custom Subdomain, Section Visibility Toggles).
+  - Direct 1-click launch straight into `/admin/dashboard`.
+- **Pro Subscription (99 Rs • Coming Soon Preview)**:
+  - **₹99 / month** tier preview (updated from 199 Rs).
+  - **Multiple Workspaces**: Multi-portfolio management support.
+  - Highlights premium features (AI Resume Parser auto-sync to DB, Unlimited Projects, Varieties of Templates & Themes, AI Bio & Case Study Enhancer, Advanced Analytics, Priority Support).
+  - Designed with subtle Shimmer / Skeleton visual state and disabled "Coming Soon" badge.
+---
+
+## 📌 Commit Summary — 2026-08-31 (Message Multi-Tenant Isolation & Onboarding Hero Sync)
+
+### 📬 Message Collection Multi-Tenancy & Tenant ID Binding
+- **Message Schema (`packages/backend/src/models/Message.ts`)**:
+  - Added indexed `tenantId` field referencing the `Workspace` model to [Message.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/models/Message.ts).
+  - Added compound index `{ tenantId: 1, createdAt: -1 }` for rapid mailbox fetching.
+- **Tenant Resolver & Headers (`packages/backend/src/utils/tenantHelper.ts`)**:
+  - Extended [tenantHelper.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/utils/tenantHelper.ts) to resolve `x-tenant-slug` headers alongside `x-tenant-id` and owner IDs.
+- **Contact Form Submission (`packages/frontend/src/components/home/ContactForm.tsx` & `[portfolioSubdomain]/page.tsx`)**:
+  - Updated [ContactForm.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/components/home/ContactForm.tsx) to accept `tenantId` and `slug` props and pass them in both request headers (`x-tenant-id`, `x-tenant-slug`) and POST payload.
+  - Bound tenant identifiers from the active public subdomain portfolio in [[portfolioSubdomain]/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/[portfolioSubdomain]/page.tsx) so messages are strictly attributed to the respective authenticated user's workspace inbox.
+
+### 🎨 Onboarding Hero Title & Badge Specialization Sync
+- **Onboarding Setup (`packages/frontend/src/app/onboarding/page.tsx`)**:
+  - Updated [onboarding/page.tsx](file:///c:/Learning/projects/devvolio/packages/frontend/src/app/onboarding/page.tsx) `handleCompleteOnboarding` to save:
+    - **Hero Main Title (`hero.title`)**: Selected Category Name (e.g. `Software Developer` or `UI/UX & Product Design`).
+    - **Hero Badge Subtitle / Role Tag (`hero.subtitle`)**: Selected Specialization (e.g. `Full Stack Developer`, `Frontend Engineer`, `Product Designer`).
+---
+
+## 📌 Commit Summary — 2026-08-31 (Selective Database Purge: Yash & Vidhi Preservation)
+
+### 🧹 Database Maintenance & Tenant Cleanup (`packages/backend/src/scripts/verifyDbState.ts`)
+---
+
+## 📌 Commit Summary — 2026-08-31 (Master Skills Catalog & Eye-Catching Grid UI)
+
+### 🗄️ Master Skills Catalog & Reference Architecture
+- **Global Master Skills Model (`packages/backend/src/models/Skill.ts`)**:
+  - Transformed the `Skill` collection into a deduplicated Global Master Catalog containing standard industry technologies, icons, and official categories with unique indexed names.
+- **Embedded Workspace Portfolio Reference (`packages/shared/src/schemas/Portfolio.ts`)**:
+  - Embedded `skills: [{ skillId: ObjectId, proficiency: Number, featured: Boolean, order: Number }]` in [Portfolio.ts](file:///c:/Learning/projects/devvolio/packages/shared/src/schemas/Portfolio.ts), eliminating duplicated technology definitions across individual tenant workspaces.
+- **Catalog & Workspace Skills APIs (`packages/backend/src/controllers/skill.controller.ts` & `routes/skill.routes.ts`)**:
+  - Added `GET /skills/catalog` and `POST /skills/catalog` for catalog searching and adding custom technologies.
+  - Updated `GET /skills`, `POST /skills`, `PUT /skills/:id`, and `DELETE /skills/:id` to manage workspace skill references with populated metadata.
+- **Public Subdomain Serialization (`packages/backend/src/controllers/workspace.controller.ts`)**:
+  - Updated `getPublicPortfolioData` to populate and map `portfolio.skills.skillId` on public tenant portfolio requests.
+- **Master Seed Catalog (`packages/backend/src/config/defaultData.ts` & `scripts/verifyDbState.ts`)**:
+  - Seeded 69 standard industry technologies across Languages, Frameworks, Databases, DevOps, Tools, Design, AI, and Architecture, pre-linking personalized skillsets to Yash and Vidhi.
+
+### 🎨 Eye-Catching Admin Skills Grid UI (`packages/frontend/src/app/admin/skills/page.tsx`)
+- **Quick-Add Master Combobox**:
+  - Added interactive Searchable Dropdown with category filter pills and 1-click addition of master technologies.
+- **Eye-Catching Responsive Card Grid**:
+  - Redesigned skills management from a plain table into a modern, glowing card grid (`2-col` mobile, `3-col` tablet, `4-col` desktop).
+  - Prominent brand technology icons with themed accent containers and category badges.
+  - **Interactive Proficiency Slider**: Real-time dragging with instant percentage display and dynamic gradient level bars.
+  - **⭐ Neon Star Featured Toggle**: One-click toggle to highlight top skills in the homepage rolling marquee.
+  - Quick trash action to remove skills from the user's workspace.
+- **Custom Technology Modal**:
+  - Modal allowing users to add unlisted libraries/tools to the global catalog and auto-link to their workspace.
+- **Live Summary Metrics Banner**:
+  - Displays Total Active Skills, Featured Marquee Count, Average Proficiency %, and Covered Categories.
+
+### 🛡️ Marquee Featured Skills Validation (Max 6 Limit)
+- **Backend Enforced Validation (`packages/backend/src/controllers/skill.controller.ts`)**:
+  - Added limit enforcement in both `createSkill` and `updateSkill` controllers.
+  - If a user attempts to feature a 7th skill, the API rejects the request with code 400 (`Maximum of 6 featured skills allowed for the homepage marquee. Please unfeature another skill first.`).
+- **Frontend Instant Feedback (`packages/frontend/src/app/admin/skills/page.tsx`)**:
+  - Added pre-flight check in `handleUpdateSkill`: Clicking the featured star when 6 skills are already featured triggers a descriptive warning toast preventing illegal requests.
+
+---
+
+## 📌 Commit Summary — 2026-08-31 (Billing & Plans Simplification: Free Plan & Pro Plan Coming Soon)
+
+### 💳 Admin Billing Page Streamlining (`packages/frontend/src/app/admin/billing/page.tsx`)
+- **Quota Cards Cleanup**:
+  - Removed the top 3 quota cards (Projects Limit, Monthly AI Quota, Custom Domain) to provide a clean and focused subscription interface.
+- **Two-Tier Plan Matrix**:
+  - **Free Plan**: Highlights active status, Single Workspace, up to 10 projects, manual data management, standard subdomain, full admin portal access, and contact inbox.
+  - **Pro Plan (Coming Soon)**: Highlighted with a sleek purple/primary badge and disabled "Coming Soon" button at **₹99 / month** (or **₹990 / year** with *Save 2 Months Free*). Highlights Multiple Workspaces, AI Resume Parser Auto-Importer, unlimited projects, custom domains, and premium templates.
+
+### 🎨 Sidebar Navigation Icon Normalization (`packages/frontend/src/app/admin/layout.tsx`)
+- **Uniform Nav Icon Styling**:
+  - Replaced the hardcoded emerald text on the `Billing & Plan` sidebar item with the standard icon style (`w-4 h-4`), keeping consistency with all other navigation items.
+
+### ⚙️ Backend Pricing Plan Alignment (`packages/backend/src/controllers/billing.controller.ts`)
+- **Updated `PRICING_PLANS`**:
+  - Configured `free` (₹0) and `pro` (₹99 / month) with matching capability descriptions and coming-soon status flags.
+
+---
+
+## 📌 Commit Summary — 2026-08-31 (User Feedback System & SuperAdmin Governance Hub)
+
+### 🗄️ Backend Feedback Schema & API Architecture
+- **Mongoose Data Model (`packages/backend/src/models/Feedback.ts`)**:
+  - Created [Feedback.ts](file:///c:/Learning/projects/devvolio/packages/backend/src/models/Feedback.ts) with user identity tracking (`userId`, `userName`, `userEmail`, `workspaceSlug`), category categorization (`ui_ux`, `feature_request`, `bug`, `performance`, `update`, `general`), 1–5 star rating, title, message, review status (`pending`, `reviewed`, `in_progress`, `resolved`), and SuperAdmin internal response notes.
+- **Feedback Controller (`packages/backend/src/controllers/feedback.controller.ts`)**:
+  - `POST /api/v1/feedback`: Submits user feedback with auto-resolved tenant and user context.
+  - `GET /api/v1/feedback/my`: Retrieves user's submitted feedback history and status updates.
+  - `GET /api/v1/feedback/admin/all`: SuperAdmin endpoint for paginated feedback with full text search, multi-attribute filtering (category, status, rating), and aggregated metric statistics.
+  - `PATCH /api/v1/feedback/admin/:id`: SuperAdmin endpoint to update review status and attach visible response notes.
+  - `DELETE /api/v1/feedback/admin/:id`: SuperAdmin endpoint to remove feedback records.
+- **Route Bindings (`packages/backend/src/routes/feedback.routes.ts` & `routes/index.ts`)**:
+  - Mounted `/feedback` with authentication and SuperAdmin role guards.
+
+### 🎨 User Admin Feedback Interface (`packages/frontend/src/app/admin/feedback/page.tsx`)
+- **Interactive Feedback Form**:
+  - Category selector chips with icons and color accents.
+  - 1–5 interactive star rating with dynamic sentiment text.
+  - Title and detailed message input with live character counters.
+- **Feedback Tracking History**:
+  - Real-time history stream displaying past submitted feedback with status badges (`Under Review`, `Reviewed`, `In Progress`, `Resolved`) and SuperAdmin response cards.
+- **Admin Navigation (`packages/frontend/src/app/admin/layout.tsx`)**:
+  - Added `Feedback` link with `<MessageSquareHeart />` icon to `ADMIN_LINKS`.
+
+### 👑 SuperAdmin Feedback Governance Hub (`packages/frontend/src/app/superadmin/feedback/page.tsx`)
+- **Executive Metric Strip**: Total Feedbacks, Pending Review, In Progress, Resolved / Built, and Average Satisfaction Rating.
+- **Search & Multi-Filter Toolbar**: Search by user name, email, workspace slug, or message content; filter by category, review status, and star rating.
+- **Rich User-Identity Cards**:
+  - Detailed tenant user identity header (name, email, workspace subdomain badge).
+  - Quick inline status switcher.
+  - Interactive modal to compose responses/internal notes displayed directly to the submitting user.
+  - Feedback deletion capability.
+- **SuperAdmin Navigation (`packages/frontend/src/app/superadmin/layout.tsx`)**:
+  - Added `Feedback Hub` to `SUPER_ADMIN_NAV`.
+
+
+
+
+
+
+
+
+
 
